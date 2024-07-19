@@ -115,17 +115,17 @@ class TRL(models.Model):
 
 
 class FormularioProyectoInterno(models.Model):
-    nombre_propuesta = models.CharField(max_length=45)
-    area_vinculada = models.CharField(max_length=45)
-    problema = models.TextField(max_length=1500)
+    nombre_propuesta = models.CharField(max_length=200)
+    area_vinculada = models.CharField(max_length=200)
+    problema = models.TextField(max_length=8000)
     horas_disponibles = models.DecimalField(max_digits=10, decimal_places=1)
-    rol_en_propuesta = models.CharField(max_length=45)
+    rol_en_propuesta = models.CharField(max_length=200)
     problema_oportunidad = models.TextField(max_length=8000)
     solucion_innovadora = models.TextField(max_length=8000)
-    estado_avance = models.CharField(max_length=45)
-    potencial_comercial = models.CharField(max_length=45)
-    innovacion_proceso = models.CharField(max_length=45)
-    plan_trabajo = models.TextField(max_length=500)
+    estado_avance = models.TextField(max_length=8000)
+    innovacion_proceso = models.TextField(max_length=8000)
+    registration_date = models.DateTimeField(auto_now_add=True)
+    plan_trabajo = models.TextField(max_length=8000) # pasar a archivo
     trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
     docente_id = models.ForeignKey(Docente, on_delete=models.CASCADE)
     empresa_id = models.ForeignKey(Empresa, on_delete=models.CASCADE)
