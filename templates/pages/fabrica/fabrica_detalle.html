@@ -1,0 +1,168 @@
+{% extends 'components/Layout/base_extendido.html' %}
+{% load static %}   
+
+{% block head_title %}
+    Fabrica 4.0 Fichas
+{% endblock head_title %}
+
+{% block content_main %}  
+
+    {% if item %}
+        <div class="bg-white rounded-lg mb-8">
+            <div class="mx-auto max-w-7xl px-6 lg:px-8 py-10">
+                <div class="mx-auto max-w-4xl divide-y divide-gray-900/10">
+                    <h2 class="text-2xl font-bold leading-10 tracking-tight text-gray-900 pb-2">Ficha Propuesta</h2>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Nombre propuesta: </span>{{ item.nombre_propuesta }}</p>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Area vinculadora: </span>{{ item.area_vinculada }}</p>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Horas disponible: </span>{{ item.horas_disponibles }} Horas</p>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Rol propuesta : </span>{{ item.rol_en_propuesta }}</p>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">TRL: </span>{{ item.trl_id }}, {{ item.trl_id.trl }}</p>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Docente: </span>{{ item.docente_id }}</p>
+
+                    <dl class="mt-1 space-y-6 divide-y divide-gray-900/10" x-data="{ openFaq: null }">
+                        <div x-data="{ isOpen: false }">
+                            <dt>
+                                <!-- Expand/collapse question button -->
+                                <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" @click="isOpen = !isOpen">
+                                    <span class="text-base font-semibold leading-7">Problema Presentado</span>
+                                    <span class="ml-6 flex h-7 items-center">
+                                        <!-- Icon when question is collapsed -->
+                                        <svg x-show="!isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                                        </svg>
+                                        <!-- Icon when question is expanded -->
+                                        <svg x-show="isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                                        </svg>
+                                    </span>
+                                </button>
+                            </dt>
+                            <dd class="pl-6 pr-5" x-show="isOpen">
+                                <p class="text-base leading-7 text-gray-600">{{ item.problema }}</p>
+                            </dd>
+                        </div>
+                        <!-- Add more questions here -->
+                        <div x-data="{ isOpen: false }">
+                            <dt>
+                                <!-- Expand/collapse question button -->
+                                <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" @click="isOpen = !isOpen">
+                                    <span class="text-base font-semibold leading-7">Problema u oportunidad</span>
+                                    <span class="ml-6 flex h-7 items-center">
+                                        <!-- Icon when question is collapsed -->
+                                        <svg x-show="!isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                                        </svg>
+                                        <!-- Icon when question is expanded -->
+                                        <svg x-show="isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                                        </svg>
+                                    </span>
+                                </button>
+                            </dt>
+                            <dd class="pl-6 pr-5" x-show="isOpen">
+                                <p class="text-base leading-7 text-gray-600">{{ item.problema_oportunidad }}</p>
+                            </dd>
+                        </div>
+                        <!-- ---->
+                        <div x-data="{ isOpen: false }">
+                            <dt>
+                                <!-- Expand/collapse question button -->
+                                <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" @click="isOpen = !isOpen">
+                                    <span class="text-base font-semibold leading-7">Soluccion innovadora</span>
+                                    <span class="ml-6 flex h-7 items-center">
+                                        <!-- Icon when question is collapsed -->
+                                        <svg x-show="!isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                                        </svg>
+                                        <!-- Icon when question is expanded -->
+                                        <svg x-show="isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                                        </svg>
+                                    </span>
+                                </button>
+                            </dt>
+                            <dd class="pl-6 pr-5" x-show="isOpen">
+                                <p class="text-base leading-7 text-gray-600">{{ item.solucion_innovadora }}</p>
+                            </dd>
+                        </div>
+
+                        <!-- ---->
+                        <div x-data="{ isOpen: false }">
+                            <dt>
+                                <!-- Expand/collapse question button -->
+                                <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" @click="isOpen = !isOpen">
+                                    <span class="text-base font-semibold leading-7">Potencial de Comercialización y/o Implementación</span>
+                                    <span class="ml-6 flex h-7 items-center">
+                                        <!-- Icon when question is collapsed -->
+                                        <svg x-show="!isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                                        </svg>
+                                        <!-- Icon when question is expanded -->
+                                        <svg x-show="isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                                        </svg>
+                                    </span>
+                                </button>
+                            </dt>
+                            <dd class="pl-6 pr-5" x-show="isOpen">
+                                <p class="text-base leading-7 text-gray-600">{{ item.innovacion_proceso }}</p>
+                            </dd>
+                        </div>
+
+                        <!-- ---->
+                        <div x-data="{ isOpen: false }">
+                            <dt>
+                                <!-- Expand/collapse question button -->
+                                <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" @click="isOpen = !isOpen">
+                                    <span class="text-base font-semibold leading-7">Plan trabajo</span>
+                                    <span class="ml-6 flex h-7 items-center">
+                                        <!-- Icon when question is collapsed -->
+                                        <svg x-show="!isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                                        </svg>
+                                        <!-- Icon when question is expanded -->
+                                        <svg x-show="isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                                        </svg>
+                                    </span>
+                                </button>
+                            </dt>
+                            <dd class="pl-6 pr-5" x-show="isOpen">
+                                <p class="text-base leading-7 text-gray-600">{{ item.plan_trabajo }}</p>
+                            </dd>
+                        </div>
+                        
+                        <!-- ---->
+                        <div x-data="{ isOpen: false }">
+                            <dt>
+                                <!-- Expand/collapse question button -->
+                                <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" @click="isOpen = !isOpen">
+                                    <span class="text-base font-semibold leading-7">Estado de Avance</span>
+                                    <span class="ml-6 flex h-7 items-center">
+                                        <!-- Icon when question is collapsed -->
+                                        <svg x-show="!isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                                        </svg>
+                                        <!-- Icon when question is expanded -->
+                                        <svg x-show="isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                                        </svg>
+                                    </span>
+                                </button>
+                            </dt>
+                            <dd class="pl-6 pr-5" x-show="isOpen">
+                                <p class="text-base leading-7 text-gray-600">{{ item.estado_avance }}</p>
+                            </dd>
+                        </div>
+
+                    </dl>
+                </div>
+            </div>
+        </div>
+    {% else %}
+
+    <strong>NO HAY REGISTROS</strong>
+
+    {% endif %} 
+
+{% endblock content_main %}
