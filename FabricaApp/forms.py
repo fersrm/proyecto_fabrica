@@ -1,5 +1,5 @@
 from django import forms
-from .models import FormularioProyectoInterno
+from .models import FormularioProyectoInterno, FormularioProyectoFabrica
 
 
 class ProyectoInternoCreateForm(forms.ModelForm):
@@ -93,3 +93,59 @@ class ProyectoInternoCreateForm(forms.ModelForm):
             "problema_oportunidad" : "Problema u oportunidad",
             "innovacion_proceso": "Potencial de Comercialización y/o Implementación",
         }
+
+
+class ProyectoFabricaCreateForm(forms.ModelForm):
+    class Meta:
+        model = FormularioProyectoFabrica
+        fields = (
+            "nombre_propuesta",
+            "problema", 
+            "solucion", 
+            "objetivos", 
+            "img", 
+            "alumnos_ip", 
+            "alumnos_cft", 
+            "docentes", 
+            "trl_id", 
+            "empresa_id",
+
+        )
+        widgets = {
+            "nombre_propuesta": forms.TextInput(
+                attrs={"placeholder": "Nombre de la propuesta"}
+            ),
+            "problema": forms.Textarea(
+                attrs={
+                    "placeholder": "Descripción brevemente el problema presentado ",
+                    "rows": 7,
+                }
+            ),
+            "solucion": forms.Textarea(
+                attrs={
+                    "placeholder": 
+"""-.Describir la solución innovadora que se pretende desarrollar para resolver el problema o abordar la oportunidad identificada,fundamentando la agregación de valor respecto a la oferta actualmente disponible en el mercado y/o en los procesos productivos de las empresas/ organizaciones, y la incertidumbre tecnológica asociada (Papers, publicaciones, patentes, etc.). (Mínimo 5000 caracteres)                                                                     
+-.Identificar y describir qué desarrollos tecnológicos y/o comerciales se han realizado recientemente a nivel nacional e internacional,     indicando las fuentes de información que lo respaldan (estado del arte), y en qué se diferencia la solución innovadora que se quiere llevar a cabo en el proyecto (Papers, publicaciones, patentes, etc.).                                                                           
+-.Indicar si existe alguna consideración y/o restricción legal, normativa, sanitaria, propiedad intelectual, entre otros,que pueda afectar el desarrollo y/o implementación de la solución innovadora y cómo será abordada (N° Ley, Resolución, artículos, etc.).""",
+                    "rows": 7,
+                }
+            ),
+            "objetivos": forms.Textarea(
+                attrs={
+                    "placeholder": "Objetivos",
+                    "rows": 7,
+                }
+            ),
+            "trl_id": forms.Select(
+                attrs={"placeholder": "Nivel de madurez tecnológica"}
+            ),
+            "docente_id": forms.Select(attrs={"placeholder": "Docente asociado"}),
+            "empresa_id": forms.Select(attrs={"placeholder": "Empresa asociada"}),
+        }
+        labels = {
+            "problema" : "Problema Presentado",
+            "docente_id": "Docentes Asociados",
+            "empresa_id": "Empresa u organization Asociada",
+            "trl_id": "Nivel de madurez tecnológica",
+        }
+

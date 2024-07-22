@@ -1,5 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
+import uuid
+import os
+from django.conf import settings
+from django.core.files.storage import default_storage
+
+
+def profile_picture_path(instance, filename):
+    random_filename = str(uuid.uuid4())
+    extension = os.path.splitext(filename)[1]
+    return f"proyectos/{random_filename}{extension}"
+
 
 
 class AreaAcademica(models.Model):
@@ -123,7 +134,7 @@ class FormularioProyectoInterno(models.Model):
     problema_oportunidad = models.TextField(max_length=8000)
     solucion_innovadora = models.TextField(max_length=8000)
     estado_avance = models.TextField(max_length=8000)
-    innovacion_proceso = models.TextField(max_length=8000)
+    innovacion_proceso = models.TextField(max_length=8000, default="")
     registration_date = models.DateTimeField(auto_now_add=True)
     plan_trabajo = models.TextField(max_length=8000) # pasar a archivo
     trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
@@ -166,3 +177,45 @@ class ContraparteEmpresa(models.Model):
 
     def __str__(self):
         return self.nombre
+
+################################
+
+class FormularioProyectoFabrica(models.Model):
+    nombre_propuesta = models.CharField(max_length=200)
+    problema = models.TextField(max_length=8000)
+    solucion = models.TextField(max_length=8000)
+    objetivos = models.TextField(max_length=8000)
+    img = models.ImageField(upload_to=profile_picture_path, null=True, blank=True)
+    alumnos_ip = models.IntegerField()
+    alumnos_cft = models.IntegerField()
+    registration_date = models.DateTimeField(auto_now_add=True)
+    docentes = models.ManyToManyField(Docente)
+    trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
+    empresa_id = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            self.handle_old_image()
+
+        super(FormularioProyectoFabrica, self).save(*args, **kwargs)
+
+    def handle_old_image(self):
+        default_image = "default.webp"
+        old_profile = FormularioProyectoFabrica.objects.get(pk=self.pk)
+        default_image_path = os.path.join(settings.MEDIA_ROOT, default_image)
+
+        if (
+            old_profile.img.path != self.img.path
+            and old_profile.img.path != default_image_path
+        ):
+            default_storage.delete(old_profile.img.path)
+
+    class Meta:
+        db_table = "formulario_proyecto_fabrica"
+
+    def __str__(self):
+        return self.nombre_propuesta

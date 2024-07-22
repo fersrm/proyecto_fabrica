@@ -13,7 +13,7 @@
             <div class="sm:mx-auto sm:w-full sm:max-w-[680px]">
                 <div class="bg-white px-6 py-10 shadow rounded-lg sm:px-12"> 
                     <h1 class="max-w-2xl font-bold tracking-tight text-gray-900 text-2xl mb-4">Fabrica 4.0</h1>
-                    <form method="post" id="formFabrica">
+                    <form method="post" id="formFabrica"  enctype="multipart/form-data">
                         {% csrf_token %}
                     
                         {{ form|crispy }}
