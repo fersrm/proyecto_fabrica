@@ -7,6 +7,7 @@ from django.views.generic import (
     DetailView,
     DeleteView,
     UpdateView,
+    View,
 )
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -14,6 +15,13 @@ from django.shortcuts import redirect, get_object_or_404
 from django.db.models import Q
 from django.core.paginator import Paginator
 from core.mixins import PermitsPositionMixin
+
+# para crear PDF
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from django.http import HttpResponse
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 # Create your views here.
 
@@ -194,3 +202,73 @@ class ProyectoFabricaUpdateView(LoginRequiredMixin, PermitsPositionMixin, Update
             for error in errors:
                 messages.error(self.request, f"{error}")
         return redirect("FabriFichaList")
+
+
+################################
+
+
+class GeneratePdfNnaView(LoginRequiredMixin, View):
+    def generate_pdf(self, formulario_proyecto):
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = 'attachment; filename="reporte.pdf"'
+        doc = SimpleDocTemplate(response, pagesize=letter)
+        styles = getSampleStyleSheet()
+        # Definir un estilo para los títulos en negrita
+        ParagraphStyle(name="Bold", parent=styles["Normal"], fontName="Helvetica-Bold")
+
+        story = []
+
+        # Título
+        title = f"Título: {formulario_proyecto.nombre_propuesta}"
+        story.append(Paragraph(title, styles["Title"]))
+        story.append(Spacer(1, 12))
+
+        # Imagen
+        if formulario_proyecto.img:
+            img_path = formulario_proyecto.img.path
+            img = Image(img_path, 2 * inch, 2 * inch)
+            story.append(img)
+            story.append(Spacer(1, 12))
+
+        # Detalles del proyecto
+        empresa = f"<b>Empresa:</b> {formulario_proyecto.empresa_id.nombre_empresa}"
+        problema = f"<b>Problema/Desafío:</b><br/>{formulario_proyecto.problema}"
+        objetivos = f"<b>Objetivo:</b><br/>{formulario_proyecto.objetivos}"
+        solucion = f"<b>Solución generada:</b><br/>{formulario_proyecto.solucion}"
+
+        details = f"""
+        {empresa}<br/>
+        <br/>
+        {problema}<br/>
+        <br/>
+        {objetivos}<br/>
+        <br/>
+        {solucion}<br/>
+        """
+        story.append(Paragraph(details, styles["Normal"]))
+        story.append(Spacer(1, 12))
+
+        # Equipo de proyecto
+        docentes = "<br/>".join(
+            [docente.nombre for docente in formulario_proyecto.docentes.all()]
+        )
+        equipo = f"<b>Equipo de proyecto:</b><br/>{docentes}<br/>"
+        equipo += f"Alumnos IP: {formulario_proyecto.alumnos_ip}<br/>"
+        equipo += f"Alumnos CFT: {formulario_proyecto.alumnos_cft}<br/>"
+        story.append(Paragraph(equipo, styles["Normal"]))
+        story.append(Spacer(1, 12))
+
+        # TRL
+        trl = (
+            f"<b>Technology Readiness Levels (TRL):</b> {formulario_proyecto.trl_id.id}"
+        )
+        story.append(Paragraph(trl, styles["Normal"]))
+
+        # Build the PDF
+        doc.build(story)
+        return response
+
+    def get(self, request, *args, **kwargs):
+        cod_id = kwargs.get("pk")
+        formulario_proyecto = get_object_or_404(FormularioProyectoFabrica, id=cod_id)
+        return self.generate_pdf(formulario_proyecto)

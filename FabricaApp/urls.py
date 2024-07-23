@@ -42,4 +42,5 @@ urlpatterns = [
         views.ProyectoFabricaUpdateView.as_view(),
         name="FabriFichaUpdate",
     ),
+    path("generar_pdf/<pk>/", views.GeneratePdfNnaView.as_view(), name="GeneratePdf"),
 ]
