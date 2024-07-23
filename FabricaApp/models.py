@@ -1,16 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.files.storage import default_storage
 import uuid
 import os
-from django.conf import settings
-from django.core.files.storage import default_storage
 
 
 def profile_picture_path(instance, filename):
     random_filename = str(uuid.uuid4())
     extension = os.path.splitext(filename)[1]
     return f"proyectos/{random_filename}{extension}"
-
 
 
 class AreaAcademica(models.Model):
@@ -136,7 +134,7 @@ class FormularioProyectoInterno(models.Model):
     estado_avance = models.TextField(max_length=8000)
     innovacion_proceso = models.TextField(max_length=8000, default="")
     registration_date = models.DateTimeField(auto_now_add=True)
-    plan_trabajo = models.TextField(max_length=8000) # pasar a archivo
+    plan_trabajo = models.TextField(max_length=8000)  # pasar a archivo
     trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
     docente_id = models.ForeignKey(Docente, on_delete=models.CASCADE)
     empresa_id = models.ForeignKey(Empresa, on_delete=models.CASCADE)
@@ -178,7 +176,9 @@ class ContraparteEmpresa(models.Model):
     def __str__(self):
         return self.nombre
 
+
 ################################
+
 
 class FormularioProyectoFabrica(models.Model):
     nombre_propuesta = models.CharField(max_length=200)
@@ -204,15 +204,12 @@ class FormularioProyectoFabrica(models.Model):
         super(FormularioProyectoFabrica, self).save(*args, **kwargs)
 
     def handle_old_image(self):
-        default_image = "default.webp"
-        old_profile = FormularioProyectoFabrica.objects.get(pk=self.pk)
-        default_image_path = os.path.join(settings.MEDIA_ROOT, default_image)
-
-        if (
-            old_profile.img.path != self.img.path
-            and old_profile.img.path != default_image_path
-        ):
-            default_storage.delete(old_profile.img.path)
+        try:
+            old_profile = FormularioProyectoFabrica.objects.get(pk=self.pk)
+            if self.img and old_profile.img != self.img:
+                default_storage.delete(old_profile.img.path)
+        except FormularioProyectoFabrica.DoesNotExist:
+            pass
 
     class Meta:
         db_table = "formulario_proyecto_fabrica"

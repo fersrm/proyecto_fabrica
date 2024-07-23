@@ -1,10 +1,16 @@
 from .models import FormularioProyectoInterno, FormularioProyectoFabrica
 from .forms import ProyectoInternoCreateForm, ProyectoFabricaCreateForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import CreateView, ListView,DetailView,DeleteView,UpdateView
+from django.views.generic import (
+    CreateView,
+    ListView,
+    DetailView,
+    DeleteView,
+    UpdateView,
+)
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.shortcuts import redirect,get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.db.models import Q
 from django.core.paginator import Paginator
 from core.mixins import PermitsPositionMixin
@@ -65,11 +71,12 @@ class ProyectoInternoDetailView(LoginRequiredMixin, DetailView):
     model = FormularioProyectoInterno
     template_name = "pages/fabrica/fabrica_detalle.html"
     context_object_name = "item"
-    
+
     def get_object(self):
         id_ = self.kwargs.get("id")
         return get_object_or_404(FormularioProyectoInterno, id=id_)
-    
+
+
 class ProyectoInternoDeleteView(LoginRequiredMixin, PermitsPositionMixin, DeleteView):
     model = FormularioProyectoInterno
     success_url = reverse_lazy("FabriList")
@@ -80,7 +87,8 @@ class ProyectoInternoDeleteView(LoginRequiredMixin, PermitsPositionMixin, Delete
         self.object.delete()
         return redirect(self.get_success_url())
 
-class ProyectoInternoUpdateView(LoginRequiredMixin, PermitsPositionMixin,UpdateView):
+
+class ProyectoInternoUpdateView(LoginRequiredMixin, PermitsPositionMixin, UpdateView):
     model = FormularioProyectoInterno
     form_class = ProyectoInternoCreateForm
     template_name = "pages/fabrica/fabrica.html"
@@ -99,7 +107,9 @@ class ProyectoInternoUpdateView(LoginRequiredMixin, PermitsPositionMixin,UpdateV
                 messages.error(self.request, f"{error}")
         return redirect("FabriList")
 
+
 ############################################
+
 
 class ProyectoFabricaCreateView(LoginRequiredMixin, CreateView):
     model = FormularioProyectoFabrica
@@ -149,7 +159,7 @@ class ProyectoFabricaDetailView(LoginRequiredMixin, DetailView):
     model = FormularioProyectoFabrica
     template_name = "pages/ficha/fabrica_detalle.html"
     context_object_name = "item"
-    
+
     def get_object(self):
         id_ = self.kwargs.get("id")
         return get_object_or_404(self.model, id=id_)
@@ -166,7 +176,7 @@ class ProyectoFabricaDeleteView(LoginRequiredMixin, PermitsPositionMixin, Delete
         return redirect(self.get_success_url())
 
 
-class ProyectoFabricaUpdateView(LoginRequiredMixin, PermitsPositionMixin,UpdateView):
+class ProyectoFabricaUpdateView(LoginRequiredMixin, PermitsPositionMixin, UpdateView):
     model = FormularioProyectoFabrica
     form_class = ProyectoFabricaCreateForm
     template_name = "pages/fabrica/fabrica.html"

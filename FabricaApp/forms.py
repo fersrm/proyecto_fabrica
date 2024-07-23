@@ -45,8 +45,7 @@ class ProyectoInternoCreateForm(forms.ModelForm):
             ),
             "solucion_innovadora": forms.Textarea(
                 attrs={
-                    "placeholder": 
-"""-.Describir la solución innovadora que se pretende desarrollar para resolver el problema o abordar la oportunidad identificada,fundamentando la agregación de valor respecto a la oferta actualmente disponible en el mercado y/o en los procesos productivos de las empresas/ organizaciones, y la incertidumbre tecnológica asociada (Papers, publicaciones, patentes, etc.). (Mínimo 5000 caracteres)                                                                     
+                    "placeholder": """-.Describir la solución innovadora que se pretende desarrollar para resolver el problema o abordar la oportunidad identificada,fundamentando la agregación de valor respecto a la oferta actualmente disponible en el mercado y/o en los procesos productivos de las empresas/ organizaciones, y la incertidumbre tecnológica asociada (Papers, publicaciones, patentes, etc.). (Mínimo 5000 caracteres)                                                                     
 -.Identificar y describir qué desarrollos tecnológicos y/o comerciales se han realizado recientemente a nivel nacional e internacional,     indicando las fuentes de información que lo respaldan (estado del arte), y en qué se diferencia la solución innovadora que se quiere llevar a cabo en el proyecto (Papers, publicaciones, patentes, etc.).                                                                           
 -.Indicar si existe alguna consideración y/o restricción legal, normativa, sanitaria, propiedad intelectual, entre otros,que pueda afectar el desarrollo y/o implementación de la solución innovadora y cómo será abordada (N° Ley, Resolución, artículos, etc.).""",
                     "rows": 7,
@@ -55,7 +54,7 @@ class ProyectoInternoCreateForm(forms.ModelForm):
             "trl_id": forms.Select(
                 attrs={"placeholder": "Nivel de madurez tecnológica"}
             ),
-            "estado_avance":forms.Textarea(
+            "estado_avance": forms.Textarea(
                 attrs={
                     "placeholder": "Descripción Estado de avance",
                     "rows": 7,
@@ -86,11 +85,11 @@ class ProyectoInternoCreateForm(forms.ModelForm):
             "empresa_id": forms.Select(attrs={"placeholder": "Empresa asociada"}),
         }
         labels = {
-            "problema" : "Problema Presentado",
+            "problema": "Problema Presentado",
             "docente_id": "Docente Asociado",
             "empresa_id": "Empresa u organization Asociada",
             "trl_id": "Nivel de madurez tecnológica",
-            "problema_oportunidad" : "Problema u oportunidad",
+            "problema_oportunidad": "Problema u oportunidad",
             "innovacion_proceso": "Potencial de Comercialización y/o Implementación",
         }
 
@@ -100,16 +99,15 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
         model = FormularioProyectoFabrica
         fields = (
             "nombre_propuesta",
-            "problema", 
-            "solucion", 
-            "objetivos", 
-            "img", 
-            "alumnos_ip", 
-            "alumnos_cft", 
-            "docentes", 
-            "trl_id", 
+            "problema",
+            "solucion",
+            "objetivos",
+            "img",
+            "alumnos_ip",
+            "alumnos_cft",
+            "docentes",
+            "trl_id",
             "empresa_id",
-
         )
         widgets = {
             "nombre_propuesta": forms.TextInput(
@@ -123,8 +121,7 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
             ),
             "solucion": forms.Textarea(
                 attrs={
-                    "placeholder": 
-"""-.Describir la solución innovadora que se pretende desarrollar para resolver el problema o abordar la oportunidad identificada,fundamentando la agregación de valor respecto a la oferta actualmente disponible en el mercado y/o en los procesos productivos de las empresas/ organizaciones, y la incertidumbre tecnológica asociada (Papers, publicaciones, patentes, etc.). (Mínimo 5000 caracteres)                                                                     
+                    "placeholder": """-.Describir la solución innovadora que se pretende desarrollar para resolver el problema o abordar la oportunidad identificada,fundamentando la agregación de valor respecto a la oferta actualmente disponible en el mercado y/o en los procesos productivos de las empresas/ organizaciones, y la incertidumbre tecnológica asociada (Papers, publicaciones, patentes, etc.). (Mínimo 5000 caracteres)                                                                     
 -.Identificar y describir qué desarrollos tecnológicos y/o comerciales se han realizado recientemente a nivel nacional e internacional,     indicando las fuentes de información que lo respaldan (estado del arte), y en qué se diferencia la solución innovadora que se quiere llevar a cabo en el proyecto (Papers, publicaciones, patentes, etc.).                                                                           
 -.Indicar si existe alguna consideración y/o restricción legal, normativa, sanitaria, propiedad intelectual, entre otros,que pueda afectar el desarrollo y/o implementación de la solución innovadora y cómo será abordada (N° Ley, Resolución, artículos, etc.).""",
                     "rows": 7,
@@ -143,9 +140,8 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
             "empresa_id": forms.Select(attrs={"placeholder": "Empresa asociada"}),
         }
         labels = {
-            "problema" : "Problema Presentado",
+            "problema": "Problema Presentado",
             "docente_id": "Docentes Asociados",
             "empresa_id": "Empresa u organization Asociada",
             "trl_id": "Nivel de madurez tecnológica",
         }
-
