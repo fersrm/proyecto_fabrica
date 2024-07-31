@@ -5,7 +5,14 @@ import uuid
 import os
 
 
-def profile_picture_path(instance, filename):
+ESTADO_CHOICES = [
+    ("PROCESO", "En Proceso"),
+    ("FINALIZADO", "Finalizado"),
+    ("EN_REVISION", "En Revisión"),
+]
+
+
+def picture_path(instance, filename):
     random_filename = str(uuid.uuid4())
     extension = os.path.splitext(filename)[1]
     return f"proyectos/{random_filename}{extension}"
@@ -123,33 +130,6 @@ class TRL(models.Model):
         return self.trl_tipo
 
 
-class FormularioProyectoInterno(models.Model):
-    nombre_propuesta = models.CharField(max_length=200)
-    area_vinculada = models.CharField(max_length=200)
-    problema = models.TextField(max_length=8000)
-    horas_disponibles = models.DecimalField(max_digits=10, decimal_places=1)
-    rol_en_propuesta = models.CharField(max_length=200)
-    problema_oportunidad = models.TextField(max_length=8000)
-    solucion_innovadora = models.TextField(max_length=8000)
-    estado_avance = models.TextField(max_length=8000)
-    innovacion_proceso = models.TextField(max_length=8000, default="")
-    registration_date = models.DateTimeField(auto_now_add=True)
-    plan_trabajo = models.TextField(max_length=8000)  # pasar a archivo
-    trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
-    docente_id = models.ForeignKey(Docente, on_delete=models.CASCADE)
-    empresa_id = models.ForeignKey(Empresa, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-    )
-
-    class Meta:
-        db_table = "formulario_proyecto_interno"
-
-    def __str__(self):
-        return self.nombre_propuesta
-
-
 class Cargo(models.Model):
     cargo_contraparte = models.CharField(max_length=45)
 
@@ -177,6 +157,37 @@ class ContraparteEmpresa(models.Model):
         return self.nombre
 
 
+####################################
+
+
+class FormularioProyectoInterno(models.Model):
+    nombre_propuesta = models.CharField(max_length=200)
+    area_vinculada = models.CharField(max_length=200)
+    problema = models.TextField(max_length=8000)
+    horas_disponibles = models.DecimalField(max_digits=10, decimal_places=1)
+    rol_en_propuesta = models.CharField(max_length=200)
+    problema_oportunidad = models.TextField(max_length=8000)
+    solucion_innovadora = models.TextField(max_length=8000)
+    estado_avance = models.TextField(max_length=8000)
+    innovacion_proceso = models.TextField(max_length=8000, default="")
+    registration_date = models.DateTimeField(auto_now_add=True)
+    plan_trabajo = models.TextField(max_length=8000)  # pasar a archivo
+    trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
+    docente_id = models.ForeignKey(Docente, on_delete=models.CASCADE)
+    empresa_id = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default="PROCESO")
+    user_id = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        db_table = "formulario_proyecto_interno"
+
+    def __str__(self):
+        return self.nombre_propuesta
+
+
 ################################
 
 
@@ -185,13 +196,14 @@ class FormularioProyectoFabrica(models.Model):
     problema = models.TextField(max_length=8000)
     solucion = models.TextField(max_length=8000)
     objetivos = models.TextField(max_length=8000)
-    img = models.ImageField(upload_to=profile_picture_path, null=True, blank=True)
+    img = models.ImageField(upload_to=picture_path, null=True, blank=True)
     alumnos_ip = models.IntegerField()
     alumnos_cft = models.IntegerField()
     registration_date = models.DateTimeField(auto_now_add=True)
     docentes = models.ManyToManyField(Docente)
     trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
     empresa_id = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default="PROCESO")
     user_id = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -216,3 +228,28 @@ class FormularioProyectoFabrica(models.Model):
 
     def __str__(self):
         return self.nombre_propuesta
+
+
+#################################
+
+
+class FormularioProyectoFabLab(models.Model):
+    nombre_propuesta = models.CharField(max_length=200)
+    problema = models.TextField(max_length=8000)
+    solucion = models.TextField(max_length=8000)
+    alumnos = models.IntegerField()
+    registration_date = models.DateTimeField(auto_now_add=True)
+    docentes = models.ManyToManyField(Docente)
+    trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default="PROCESO")
+    user_id = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+
+
+class FabLabImage(models.Model):
+    image = models.ImageField(upload_to=picture_path)
+    ficha_fablab = models.ForeignKey(
+        FormularioProyectoFabLab, related_name="images", on_delete=models.CASCADE
+    )

@@ -1,5 +1,15 @@
-from .models import FormularioProyectoInterno, FormularioProyectoFabrica
-from .forms import ProyectoInternoCreateForm, ProyectoFabricaCreateForm
+from .models import (
+    FormularioProyectoInterno,
+    FormularioProyectoFabrica,
+    FormularioProyectoFabLab,
+    FabLabImage,
+)
+from .forms import (
+    ProyectoInternoCreateForm,
+    ProyectoFabricaCreateForm,
+    ProyectoFabLabCreateForm,
+    ImageForm,
+)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import (
     CreateView,
@@ -11,19 +21,18 @@ from django.views.generic import (
 )
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.db.models import Q
 from django.core.paginator import Paginator
 from core.mixins import PermitsPositionMixin
-
-# para crear PDF
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from django.http import HttpResponse
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 # Create your views here.
+
+
+####################################################
+### ### PROYECTO INTERNO ###
+####################################################
 
 
 class ProyectoInternoCreateView(LoginRequiredMixin, CreateView):
@@ -116,7 +125,9 @@ class ProyectoInternoUpdateView(LoginRequiredMixin, PermitsPositionMixin, Update
         return redirect("FabriList")
 
 
-############################################
+####################################################
+### ### PROYECTO FABRICA ###
+####################################################
 
 
 class ProyectoFabricaCreateView(LoginRequiredMixin, CreateView):
@@ -204,10 +215,119 @@ class ProyectoFabricaUpdateView(LoginRequiredMixin, PermitsPositionMixin, Update
         return redirect("FabriFichaList")
 
 
-################################
+####################################################
+### ### PROYECTO FABLAB ###
+####################################################
 
 
-class GeneratePdfNnaView(LoginRequiredMixin, View):
+class ProyectoFabLabCreateView(View):
+    def get(self, request):
+        fablab_form = ProyectoFabLabCreateForm()
+        image_form = ImageForm()
+        return render(
+            request,
+            "pages/fablab/fablab.html",
+            {"fablab_form": fablab_form, "image_form": image_form},
+        )
+
+    def post(self, request):
+        fablab_form = ProyectoFabLabCreateForm(request.POST)
+        image_form = ImageForm(request.POST, request.FILES)
+
+        if fablab_form.is_valid() and image_form.is_valid():
+            user = self.request.user
+            fablab = fablab_form.save(commit=False)
+            fablab.user_id = user
+            fablab.save()
+
+            uploaded_images = request.FILES.getlist("image")
+            for image in uploaded_images:
+                FabLabImage.objects.create(ficha_fablab=fablab, image=image)
+
+            return redirect("FabLabFichaList")
+
+        return render(
+            request,
+            "pages/fablab/fablab.html",
+            {"fablab_form": fablab_form, "image_form": image_form},
+        )
+
+
+class ProyectoFabLabListView(LoginRequiredMixin, ListView):
+    model = FormularioProyectoFabLab
+    template_name = "pages/fablab/fablab_lista.html"
+    paginate_by = 8
+
+    def get_queryset(self):
+        queryset = super().get_queryset().order_by("-id")
+        search_query = self.request.GET.get("search")
+
+        if search_query:
+            queryset = queryset.filter(Q(nombre_propuesta=search_query))
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        paginator = Paginator(context["object_list"], self.paginate_by)
+        page = self.request.GET.get("page")
+        context["object_list"] = paginator.get_page(page)
+        context["placeholder"] = "Buscar por nombre de propuesta."
+        return context
+
+
+class ProyectoFabLabDetailView(LoginRequiredMixin, DetailView):
+    model = FormularioProyectoFabLab
+    template_name = "pages/fablab/fablab_detalle.html"
+    context_object_name = "item"
+
+    def get_object(self):
+        id_ = self.kwargs.get("id")
+        return get_object_or_404(self.model, id=id_)
+
+
+class ProyectoFabLabDeleteView(LoginRequiredMixin, PermitsPositionMixin, DeleteView):
+    model = FormularioProyectoFabLab
+    success_url = reverse_lazy("FabLabFichaList")
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        messages.success(self.request, "Proyecto eliminado correctamente")
+        self.object.delete()
+        return redirect(self.get_success_url())
+
+
+class ProyectoFabLAbUpdateView(LoginRequiredMixin, PermitsPositionMixin, UpdateView):
+    model = FormularioProyectoFabLab
+    form_class = ProyectoFabLabCreateForm
+    template_name = "pages/fabrica/fabrica.html"
+    success_url = reverse_lazy("FabLabFichaList")
+
+    def form_valid(self, form):
+        form.clean()
+        form.save()
+        messages.success(self.request, "Proyecto editado correctamente")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Error en el formulario")
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(self.request, f"{error}")
+        return redirect("FabLabFichaList")
+
+
+############################
+### ###  Generate PDF
+############################
+
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab import platypus
+
+
+class GeneratePdfFabricaView(LoginRequiredMixin, View):
     def generate_pdf(self, formulario_proyecto):
         response = HttpResponse(content_type="application/pdf")
         response["Content-Disposition"] = 'attachment; filename="reporte.pdf"'
@@ -226,9 +346,13 @@ class GeneratePdfNnaView(LoginRequiredMixin, View):
         # Imagen
         if formulario_proyecto.img:
             img_path = formulario_proyecto.img.path
-            img = Image(img_path, 2 * inch, 2 * inch)
-            story.append(img)
-            story.append(Spacer(1, 12))
+            try:
+                img = platypus.Image(img_path, 2 * inch, 2 * inch)
+                story.append(img)
+                story.append(Spacer(1, 12))
+            except Exception as e:
+                print(e)
+                story.append(Paragraph("Error al cargar la imagen.", styles["Normal"]))
 
         # Detalles del proyecto
         empresa = f"<b>Empresa:</b> {formulario_proyecto.empresa_id.nombre_empresa}"
@@ -272,3 +396,148 @@ class GeneratePdfNnaView(LoginRequiredMixin, View):
         cod_id = kwargs.get("pk")
         formulario_proyecto = get_object_or_404(FormularioProyectoFabrica, id=cod_id)
         return self.generate_pdf(formulario_proyecto)
+
+
+###########################
+### ## Generate PTT ###
+###########################
+
+from io import BytesIO
+from pptx import Presentation
+from PIL import Image
+from pptx.util import Inches, Pt
+
+
+class GeneratePptFabLabView(LoginRequiredMixin, View):
+    def generate_ppt(self, formulario_proyecto):
+        # Crear una presentación en memoria
+        presentation = Presentation()
+
+        # Agregar una diapositiva con un título y un subtítulo
+        slide_layout = presentation.slide_layouts[0]  # Título y subtítulo
+        slide = presentation.slides.add_slide(slide_layout)
+        title = slide.shapes.title
+        subtitle = slide.placeholders[1]
+        title.text = "FABLAB INACAP"
+        subtitle.text = "Fichas de Proyecto"
+
+        # Agregar una diapositiva con imágenes del proyecto
+        if formulario_proyecto.images.exists():
+            slide_layout = presentation.slide_layouts[5]  # Diapositiva en blanco
+            slide = presentation.slides.add_slide(slide_layout)
+            title_shape = slide.shapes.title
+            title_shape.text = "Detalle del Proyecto"
+
+            # Configurar el tamaño y la posición de las imágenes
+            left_margin = Inches(0.5)
+            top_margin = Inches(1.3)
+            image_width = Inches(2.5)
+            image_height = Inches(2.5)
+            space_between_images = Inches(0.2)  # Espacio entre imágenes
+            max_images_per_row = 2
+
+            # Añadir título y TRL al lado derecho de las imágenes
+            right_text_box = slide.shapes.add_textbox(
+                Inches(6), Inches(1.2), Inches(4), Inches(3)
+            )
+            text_frame = right_text_box.text_frame
+            p = text_frame.add_paragraph()
+            p.text = f"Nombre propuesta:\n{formulario_proyecto.nombre_propuesta}"
+            p.font.size = Pt(14)
+            p.font.bold = True
+            p.space_after = Pt(14)
+
+            p = text_frame.add_paragraph()
+            p.text = f"TRL:{formulario_proyecto.trl_id}"
+            p.font.size = Pt(14)
+            p.font.bold = True
+            p.space_after = Pt(14)
+
+            # Añadir imágenes
+            row = 0
+            col = 0
+            for image in formulario_proyecto.images.all():
+                img_stream = BytesIO(image.image.read())
+
+                # Convertir WEBP a PNG
+                with Image.open(img_stream) as img:
+                    img = img.convert("RGB")  # Convertir a RGB si es necesario
+                    png_io = BytesIO()
+                    img.save(png_io, format="PNG")
+                    png_io.seek(0)
+
+                    # Calcular posición de la imagen
+                    left = left_margin + col * (image_width + space_between_images)
+                    top = top_margin + row * (image_height + space_between_images)
+
+                    # Agregar imagen al PPT
+                    slide.shapes.add_picture(
+                        png_io, left, top, width=image_width, height=image_height
+                    )
+
+                    # Ajustar fila y columna para la siguiente imagen
+                    col += 1
+                    if col >= max_images_per_row:
+                        col = 0
+                        row += 1
+
+            # Añadir información de docentes y alumnos
+            text_box = slide.shapes.add_textbox(
+                Inches(6), Inches(5), Inches(4), Inches(2)
+            )
+            text_frame = text_box.text_frame
+            p = text_frame.add_paragraph()
+            p.text = "Docentes:"
+            p.font.size = Pt(12)
+            p.font.bold = True
+            p.space_after = Pt(4)
+
+            # Lista de docentes
+            docentes_list = "\n".join(
+                f"• {docente.nombre}" for docente in formulario_proyecto.docentes.all()
+            )
+            p = text_frame.add_paragraph()
+            p.text = docentes_list
+            p.font.size = Pt(12)
+            p.space_after = Pt(6)
+
+            p = text_frame.add_paragraph()
+            p.text = f"Alumnos Participantes: {formulario_proyecto.alumnos}"
+            p.font.size = Pt(12)
+            p.font.bold = True
+
+        # Agregar diapositiva con el problema
+        slide_layout = presentation.slide_layouts[1]  # Título y contenido
+        slide = presentation.slides.add_slide(slide_layout)
+        title = slide.shapes.title
+        content = slide.placeholders[1]
+        title.text = "Problema"
+        content.text = formulario_proyecto.problema
+        content.text_frame.paragraphs[0].font.size = Pt(14)
+
+        # Agregar diapositiva con la solución
+        slide = presentation.slides.add_slide(slide_layout)
+        title = slide.shapes.title
+        content = slide.placeholders[1]
+        title.text = "Solución"
+        content.text = formulario_proyecto.solucion
+        content.text_frame.paragraphs[0].font.size = Pt(14)
+
+        # Guardar la presentación en un objeto BytesIO
+        byte_io = BytesIO()
+        presentation.save(byte_io)
+        byte_io.seek(0)
+
+        # Crear la respuesta HTTP
+        response = HttpResponse(
+            byte_io,
+            content_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        )
+        response["Content-Disposition"] = 'attachment; filename="presentacion.pptx"'
+
+        return response
+
+    def get(self, request, *args, **kwargs):
+        cod_id = kwargs.get("pk")
+        formulario_proyecto = get_object_or_404(FormularioProyectoFabLab, id=cod_id)
+        return self.generate_ppt(formulario_proyecto)

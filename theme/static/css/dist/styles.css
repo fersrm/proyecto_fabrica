@@ -868,6 +868,10 @@ select {
   grid-column: span 1 / span 1;
 }
 
+.col-span-2 {
+  grid-column: span 2 / span 2;
+}
+
 .-m-1 {
   margin: -0.25rem;
 }
@@ -1266,6 +1270,10 @@ select {
 
 .grid-cols-1 {
   grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .flex-col {
@@ -1803,6 +1811,10 @@ select {
 
 .pl-8 {
   padding-left: 2rem;
+}
+
+.pl-\[10px\] {
+  padding-left: 10px;
 }
 
 .pr-0 {

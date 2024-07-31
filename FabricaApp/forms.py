@@ -1,5 +1,11 @@
 from django import forms
-from .models import FormularioProyectoInterno, FormularioProyectoFabrica
+from django.core.exceptions import ValidationError
+from .models import (
+    FormularioProyectoInterno,
+    FormularioProyectoFabrica,
+    FormularioProyectoFabLab,
+    FabLabImage,
+)
 
 
 class ProyectoInternoCreateForm(forms.ModelForm):
@@ -145,3 +151,77 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
             "empresa_id": "Empresa u organization Asociada",
             "trl_id": "Nivel de madurez tecnológica",
         }
+
+
+class ProyectoFabLabCreateForm(forms.ModelForm):
+    class Meta:
+        model = FormularioProyectoFabLab
+        fields = (
+            "nombre_propuesta",
+            "problema",
+            "solucion",
+            "alumnos",
+            "docentes",
+            "trl_id",
+        )
+        widgets = {
+            "nombre_propuesta": forms.TextInput(
+                attrs={"placeholder": "Nombre de la propuesta"}
+            ),
+            "problema": forms.Textarea(
+                attrs={
+                    "placeholder": "Descripción brevemente el problema presentado ",
+                    "rows": 7,
+                }
+            ),
+            "solucion": forms.Textarea(
+                attrs={
+                    "placeholder": """-.Describir la solución innovadora que se pretende desarrollar para resolver el problema o abordar la oportunidad identificada,fundamentando la agregación de valor respecto a la oferta actualmente disponible en el mercado y/o en los procesos productivos de las empresas/ organizaciones, y la incertidumbre tecnológica asociada (Papers, publicaciones, patentes, etc.). (Mínimo 5000 caracteres)                                                                     
+-.Identificar y describir qué desarrollos tecnológicos y/o comerciales se han realizado recientemente a nivel nacional e internacional,     indicando las fuentes de información que lo respaldan (estado del arte), y en qué se diferencia la solución innovadora que se quiere llevar a cabo en el proyecto (Papers, publicaciones, patentes, etc.).                                                                           
+-.Indicar si existe alguna consideración y/o restricción legal, normativa, sanitaria, propiedad intelectual, entre otros,que pueda afectar el desarrollo y/o implementación de la solución innovadora y cómo será abordada (N° Ley, Resolución, artículos, etc.).""",
+                    "rows": 7,
+                }
+            ),
+            "trl_id": forms.Select(
+                attrs={"placeholder": "Nivel de madurez tecnológica"}
+            ),
+            "docente_id": forms.Select(attrs={"placeholder": "Docente asociado"}),
+        }
+        labels = {
+            "problema": "Problema Presentado",
+            "docente_id": "Docentes Asociados",
+            "trl_id": "Nivel de madurez tecnológica",
+        }
+
+
+#############################################
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            if len(data) > 4:
+                raise ValidationError("Solo puedes subir un máximo de 4 imágenes.")
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+
+
+class ImageForm(forms.ModelForm):
+    image = MultipleFileField(label="Select files", required=False)
+
+    class Meta:
+        model = FabLabImage
+        fields = [
+            "image",
+        ]

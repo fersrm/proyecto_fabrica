@@ -42,5 +42,39 @@ urlpatterns = [
         views.ProyectoFabricaUpdateView.as_view(),
         name="FabriFichaUpdate",
     ),
-    path("generar_pdf/<pk>/", views.GeneratePdfNnaView.as_view(), name="GeneratePdf"),
+    path(
+        "ficha_fabrica/generar_pdf/<pk>/",
+        views.GeneratePdfFabricaView.as_view(),
+        name="GeneratePdf",
+    ),
+    path(
+        "ficha_fablab/",
+        views.ProyectoFabLabCreateView.as_view(),
+        name="FabLabFichaCreate",
+    ),
+    path(
+        "ficha_fablab/list/",
+        views.ProyectoFabLabListView.as_view(),
+        name="FabLabFichaList",
+    ),
+    path(
+        "ficha_fablab/detalle/<int:id>/",
+        views.ProyectoFabLabDetailView.as_view(),
+        name="FabLabFichaDetail",
+    ),
+    path(
+        "ficha_fablab/eliminar/<int:pk>/",
+        views.ProyectoFabLabDeleteView.as_view(),
+        name="FabLabFichaDelete",
+    ),
+    path(
+        "ficha_fablab/editar/<int:pk>/",
+        views.ProyectoFabLAbUpdateView.as_view(),
+        name="FabLabFichaUpdate",
+    ),
+    path(
+        "ficha_fablab/generar_ppt/<int:pk>/",
+        views.GeneratePptFabLabView.as_view(),
+        name="GeneratePpt",
+    ),
 ]
