@@ -5,17 +5,84 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Reporte de Proyecto</title>
-        <link rel="stylesheet" href="{% static 'css/pdf.css' %}" />
+
+        <style>
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: Arial, sans-serif;
+            }
+
+            .page {
+                page-break-after: always;
+            }
+
+            .cover-page {
+                text-align: center;
+                padding-bottom: 20px;
+            }
+
+            .header-images {
+                margin-bottom: 6rem;
+            }
+
+            .container-img {
+                display: inline-block;
+                width: 150px;
+            }
+
+            .cover-page h1 {
+                font-size: 24px;
+                color: #000;
+                margin-bottom: 10px;
+            }
+
+            .cover-page p {
+                font-size: 16px;
+                color: #000;
+            }
+
+            /* Content Sections */
+            .container {
+                padding: 20px;
+            }
+
+            .section {
+                margin-bottom: 20px;
+            }
+
+            .section h2 {
+                font-size: 22px;
+                color: #c8102e; /* Rojo Institucional */
+                margin-bottom: 10px;
+                border-bottom: 1px solid #c8102e;
+                padding-bottom: 5px;
+            }
+
+            .section p {
+                font-size: 14px;
+                color: #333;
+                line-height: 1.6;
+                margin-bottom: 5px;
+            }
+
+        </style>
+
     </head>
     <body>
         <!-- Portada -->
         <div class="cover-page">
             <div class="header-images">
-                <div class="container-img">
-                    <img src="{% static 'img/inacap.jpg' %}" alt="Logo">
+                <div class="container-img"  style="margin-right:100px">
+                    <img src="http://127.0.0.1:8000/{% static 'img/inacap.jpg' %}" alt="Logo" width="150px">
                 </div>
-                <div class="container-img">
-                    <img src="{% static 'img/logo_fabrica.jpeg' %}" alt="Logo">
+                <div class="container-img"  style="margin-left:200px;">
+                    <img src="http://127.0.0.1:8000/{% static 'img/logo_fabrica.jpeg' %}" alt="Logo" width="150px">
                 </div>
             </div>
             <h1>Reporte de Proyecto: {{ formulario_proyecto.nombre_propuesta }}</h1>
@@ -36,19 +103,37 @@
             </div>
 
             <div class="page"></div> <!-- Page break -->
-
             <!-- Imágenes -->
             <div class="section">
                 <h2>Imágenes del Proyecto</h2>
-                <div class="images">
-                    {% for image in formulario_proyecto.images.all %}
-                        <div class="image">
-                            <img src="{{ image.image.url }}" alt="Fabrica">
+                
+                {% with images=formulario_proyecto.images.all %}
+                    {% if images %}
+                        <!-- Primer grupo de dos imágenes -->
+                        <div class="images"  style="margin-bottom: 20px;">
+                            {% for image in images %}
+                                {% if forloop.counter0 < 2 %}
+                                    <div class="image" style="display:inline-block;">
+                                        <img src="http://127.0.0.1:8000/{{ image.image.url }}" alt="Fabrica" width="350px">
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
                         </div>
-                    {% empty %}
+                        
+                        <!-- Segundo grupo de dos imágenes -->
+                        <div class="images"  style="margin-bottom: 20px;">
+                            {% for image in images %}
+                                {% if forloop.counter0 >= 2 and forloop.counter0 < 4 %}
+                                    <div class="image" style="display:inline-block;">
+                                        <img src="http://127.0.0.1:8000/{{ image.image.url }}" alt="Fabrica" width="350px">
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
                         <p>No hay imágenes disponibles.</p>
-                    {% endfor %}
-                </div>
+                    {% endif %}
+                {% endwith %}
             </div>
 
             {% if formulario_proyecto.fondos %}

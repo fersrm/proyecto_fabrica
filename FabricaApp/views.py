@@ -442,24 +442,35 @@ class ProyectoFabLAbUpdateView(LoginRequiredMixin, PermitsPositionMixin, UpdateV
 ############################
 ### ###  Generate PDF
 ############################
+from io import BytesIO
+from PIL import Image as PilImage
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
-from django.conf import settings
-from django_weasyprint import WeasyTemplateResponseMixin
-import os
+
+def render_to_pdf(template_src, context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+
+    try:
+        pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), dest=result)
+        if not pdf.err:
+            result.seek(0)
+            return HttpResponse(result.getvalue(), content_type="application/pdf")
+    except Exception as e:
+        print(f"Error generating PDF: {e}")
+
+    return HttpResponse("Error generating PDF", content_type="text/plain")
 
 
-class PdfView(WeasyTemplateResponseMixin, DetailView):
-    model = FormularioProyectoFabrica
-    template_name = "pdf_formato/pdf.html"
-    pdf_stylesheets = [os.path.join(settings.STATICFILES_DIRS[0], "css", "pdf.css")]
-    pdf_attachment = False
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        cod_id = self.kwargs.get("pk")
+class PdfView(View):
+    def get(self, request, *args, **kwargs):
+        cod_id = kwargs.get("pk")
         formulario_proyecto = get_object_or_404(FormularioProyectoFabrica, id=cod_id)
-        context["formulario_proyecto"] = formulario_proyecto
-        return context
+        context = {"formulario_proyecto": formulario_proyecto}
+        pdf = render_to_pdf("pdf_formato/pdf.html", context)
+        return HttpResponse(pdf, content_type="application/pdf")
 
 
 ###########################
@@ -469,8 +480,6 @@ class PdfView(WeasyTemplateResponseMixin, DetailView):
 
 from pptx import Presentation
 from pptx.util import Inches, Pt
-from io import BytesIO
-from PIL import Image as PilImage
 
 
 class GeneratePptFabLabView(LoginRequiredMixin, View):
