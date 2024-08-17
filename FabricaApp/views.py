@@ -3,12 +3,15 @@ from .models import (
     FormularioProyectoFabrica,
     FormularioProyectoFabLab,
     FabLabImage,
+    FabricaImage,
 )
 from .forms import (
     ProyectoInternoCreateForm,
     ProyectoFabricaCreateForm,
     ProyectoFabLabCreateForm,
+    ProyectoFabricaFondosCreateForm,
     ImageForm,
+    ImageFabricaForm,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import (
@@ -30,12 +33,12 @@ from django.http import HttpResponse
 # Create your views here.
 
 
-####################################################
-### ### PROYECTO INTERNO ###
-####################################################
+##########################################
+##### PROYECTO FABRICA INTERNO CARLA #####
+##########################################
 
 
-class ProyectoInternoCreateView(LoginRequiredMixin, CreateView):
+class ProyectoInternoCreateView(LoginRequiredMixin, PermitsPositionMixin, CreateView):
     model = FormularioProyectoInterno
     form_class = ProyectoInternoCreateForm
     template_name = "pages/fabrica/fabrica.html"
@@ -57,7 +60,7 @@ class ProyectoInternoCreateView(LoginRequiredMixin, CreateView):
         return redirect("FabriCreate")
 
 
-class ProyectoInternoListView(LoginRequiredMixin, ListView):
+class ProyectoInternoListView(LoginRequiredMixin, PermitsPositionMixin, ListView):
     model = FormularioProyectoInterno
     template_name = "pages/fabrica/fabrica_lista.html"
     paginate_by = 8
@@ -84,7 +87,7 @@ class ProyectoInternoListView(LoginRequiredMixin, ListView):
         return context
 
 
-class ProyectoInternoDetailView(LoginRequiredMixin, DetailView):
+class ProyectoInternoDetailView(LoginRequiredMixin, PermitsPositionMixin, DetailView):
     model = FormularioProyectoInterno
     template_name = "pages/fabrica/fabrica_detalle.html"
     context_object_name = "item"
@@ -125,31 +128,84 @@ class ProyectoInternoUpdateView(LoginRequiredMixin, PermitsPositionMixin, Update
         return redirect("FabriList")
 
 
-####################################################
-### ### PROYECTO FABRICA ###
-####################################################
+######################################
+### ### PROYECTO FABRICA ANITA ### ###
+######################################
 
 
-class ProyectoFabricaCreateView(LoginRequiredMixin, CreateView):
-    model = FormularioProyectoFabrica
-    form_class = ProyectoFabricaCreateForm
-    template_name = "pages/fabrica/fabrica.html"
-    success_url = reverse_lazy("FabriFichaCreate")
+class ProyectoFabricaCreateView(LoginRequiredMixin, View):
 
-    def form_valid(self, form):
-        user = self.request.user
-        formulario_proyecto = form.save(commit=False)
-        formulario_proyecto.user_id = user
-        formulario_proyecto.save()
-        messages.success(self.request, "Archivo cargado con éxito")
-        return super().form_valid(form)
+    def handle_form_errors(self, proyecto_form, img_form, fondos_form):
+        combined_errors = {}
 
-    def form_invalid(self, form):
-        for field, errors in form.errors.items():
-            for error in errors:
-                print(field, error)
-                messages.error(self.request, f"{error}")
-        return redirect("FabriFichaCreate")
+        errors = [proyecto_form, img_form]
+        if proyecto_form.cleaned_data.get("fondos", False):
+            errors.append(fondos_form)
+
+        # Combinar errores de todos los formularios
+        for form in errors:
+            for field, field_errors in form.errors.items():
+                combined_errors.setdefault(field, []).extend(field_errors)
+
+        # Registrar los mensajes de error
+        for field, field_errors in combined_errors.items():
+            for error in field_errors:
+                messages.error(self.request, error)
+
+    def get(self, request, *args, **kwargs):
+        parte1_form = ProyectoFabricaCreateForm()
+        parte2_form = ProyectoFabricaFondosCreateForm()
+        image_form = ImageFabricaForm()
+        return render(
+            request,
+            "pages/ficha/fabrica_fondos.html",
+            {
+                "parte1_form": parte1_form,
+                "image_form": image_form,
+                "parte2_form": parte2_form,
+            },
+        )
+
+    def post(self, request, *args, **kwargs):
+        parte1_form = ProyectoFabricaCreateForm(request.POST, request.FILES)
+        image_form = ImageFabricaForm(request.POST, request.FILES)
+
+        if parte1_form.is_valid() and image_form.is_valid():
+            user = self.request.user
+            instance = parte1_form.save(commit=False)
+            instance.user_id = user
+            instance.save()
+
+            uploaded_images = request.FILES.getlist("image")
+            for image in uploaded_images:
+                FabricaImage.objects.create(ficha_fabrica=instance, image=image)
+
+            messages.success(self.request, "Creado con éxito")
+
+            if parte1_form.cleaned_data["fondos"]:
+                parte2_form = ProyectoFabricaFondosCreateForm(request.POST)
+                if parte2_form.is_valid():
+                    fondos_instance = parte2_form.save(commit=False)
+                    fondos_instance.proyecto = instance
+                    fondos_instance.save()
+                    return redirect("FabriFichaCreate")
+            else:
+                return redirect("FabriFichaCreate")
+        else:
+            parte2_form = (
+                ProyectoFabricaFondosCreateForm()
+            )  # Crea un formulario vacío si parte1_form no es válido
+            self.handle_form_errors(parte1_form, image_form, parte2_form)
+
+        return render(
+            request,
+            "pages/ficha/fabrica_fondos.html",
+            {
+                "parte1_form": parte1_form,
+                "image_form": image_form,
+                "parte2_form": parte2_form,
+            },
+        )
 
 
 class ProyectoFabricaListView(LoginRequiredMixin, ListView):
@@ -159,10 +215,17 @@ class ProyectoFabricaListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset().order_by("-id")
+        user = self.request.user
         search_query = self.request.GET.get("search")
 
+        # Filtrar según el usuario
+        if not user.is_superuser:
+            queryset = queryset.filter(user_id=user.id)
+
+        # Filtrar por código SIR si se ha proporcionado una búsqueda
         if search_query:
-            queryset = queryset.filter(Q(empresa_id__nombre_empresa=search_query))
+            queryset = queryset.filter(Q(codigo_sir=search_query))
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -170,7 +233,7 @@ class ProyectoFabricaListView(LoginRequiredMixin, ListView):
         paginator = Paginator(context["object_list"], self.paginate_by)
         page = self.request.GET.get("page")
         context["object_list"] = paginator.get_page(page)
-        context["placeholder"] = "Buscar por nombre de empresa."
+        context["placeholder"] = "Buscar por código SIR"
         return context
 
 
@@ -184,6 +247,82 @@ class ProyectoFabricaDetailView(LoginRequiredMixin, DetailView):
         return get_object_or_404(self.model, id=id_)
 
 
+class ProyectoFabricaUpdateView(LoginRequiredMixin, View):
+    template_name = "pages/ficha/fabrica_update.html"
+
+    def handle_form_errors(self, proyecto_form, fondos_form):
+        combined_errors = {}
+
+        errors = [proyecto_form]
+        if proyecto_form.cleaned_data.get("fondos", False):
+            errors.append(fondos_form)
+
+        # Combinar errores de todos los formularios
+        for form in errors:
+            for field, field_errors in form.errors.items():
+                combined_errors.setdefault(field, []).extend(field_errors)
+
+        # Registrar los mensajes de error
+        for field, field_errors in combined_errors.items():
+            for error in field_errors:
+                messages.error(self.request, error)
+
+    def get(self, request, *args, **kwargs):
+        id_ = self.kwargs.get("pk")
+        proyecto = get_object_or_404(FormularioProyectoFabrica, id=id_)
+
+        proyecto_form = ProyectoFabricaCreateForm(instance=proyecto)
+
+        fondos_form = ProyectoFabricaFondosCreateForm(
+            instance=(
+                proyecto.fondos_proyecto.first()
+                if proyecto.fondos_proyecto.exists()
+                else None
+            )
+        )
+
+        fecha_inicio = (
+            proyecto.fecha_inicio.strftime("%Y-%m-%d") if proyecto.fecha_inicio else ""
+        )
+
+        context = {
+            "proyecto_form": proyecto_form,
+            "fondos_form": fondos_form,
+            "fecha_inicio": fecha_inicio,
+        }
+
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        id_ = self.kwargs.get("pk")
+        proyecto = get_object_or_404(FormularioProyectoFabrica, id=id_)
+
+        proyecto_form = ProyectoFabricaCreateForm(
+            request.POST, request.FILES, instance=proyecto
+        )
+
+        fondos_form = ProyectoFabricaFondosCreateForm(
+            request.POST,
+            instance=proyecto.fondos_proyecto.first() if proyecto.fondos else None,
+        )
+
+        if proyecto_form.is_valid():
+            proyecto_form.save()
+
+            if proyecto.fondos and fondos_form.is_valid():
+                fondos = fondos_form.save(commit=False)
+                fondos.proyecto = proyecto
+                fondos.save()
+
+            messages.success(request, "Proyecto actualizado exitosamente.")
+            return redirect("FabriFichaList")
+        else:
+            self.handle_form_errors(proyecto_form, fondos_form)
+
+        context = {"proyecto_form": proyecto_form, "fondos_form": fondos_form}
+        return render(request, self.template_name, context)
+
+
 class ProyectoFabricaDeleteView(LoginRequiredMixin, PermitsPositionMixin, DeleteView):
     model = FormularioProyectoFabrica
     success_url = reverse_lazy("FabriFichaList")
@@ -195,32 +334,12 @@ class ProyectoFabricaDeleteView(LoginRequiredMixin, PermitsPositionMixin, Delete
         return redirect(self.get_success_url())
 
 
-class ProyectoFabricaUpdateView(LoginRequiredMixin, PermitsPositionMixin, UpdateView):
-    model = FormularioProyectoFabrica
-    form_class = ProyectoFabricaCreateForm
-    template_name = "pages/fabrica/fabrica.html"
-    success_url = reverse_lazy("FabriFichaList")
-
-    def form_valid(self, form):
-        form.clean()
-        form.save()
-        messages.success(self.request, "Proyecto editado correctamente")
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        messages.error(self.request, "Error en el formulario")
-        for field, errors in form.errors.items():
-            for error in errors:
-                messages.error(self.request, f"{error}")
-        return redirect("FabriFichaList")
+######################################
+### ### PROYECTO FABLAB MIGUEL ### ###
+######################################
 
 
-####################################################
-### ### PROYECTO FABLAB ###
-####################################################
-
-
-class ProyectoFabLabCreateView(View):
+class ProyectoFabLabCreateView(LoginRequiredMixin, PermitsPositionMixin, View):
     def get(self, request):
         fablab_form = ProyectoFabLabCreateForm()
         image_form = ImageForm()
@@ -239,12 +358,16 @@ class ProyectoFabLabCreateView(View):
             fablab = fablab_form.save(commit=False)
             fablab.user_id = user
             fablab.save()
+            messages.success(self.request, "Creado con éxito")
+
+            docentes = fablab_form.cleaned_data.get("docentes")
+            fablab.docentes.set(docentes)
 
             uploaded_images = request.FILES.getlist("image")
             for image in uploaded_images:
                 FabLabImage.objects.create(ficha_fablab=fablab, image=image)
 
-            return redirect("FabLabFichaList")
+            return redirect("FabLabFichaCreate")
 
         return render(
             request,
@@ -253,7 +376,7 @@ class ProyectoFabLabCreateView(View):
         )
 
 
-class ProyectoFabLabListView(LoginRequiredMixin, ListView):
+class ProyectoFabLabListView(LoginRequiredMixin, PermitsPositionMixin, ListView):
     model = FormularioProyectoFabLab
     template_name = "pages/fablab/fablab_lista.html"
     paginate_by = 8
@@ -275,7 +398,7 @@ class ProyectoFabLabListView(LoginRequiredMixin, ListView):
         return context
 
 
-class ProyectoFabLabDetailView(LoginRequiredMixin, DetailView):
+class ProyectoFabLabDetailView(LoginRequiredMixin, PermitsPositionMixin, DetailView):
     model = FormularioProyectoFabLab
     template_name = "pages/fablab/fablab_detalle.html"
     context_object_name = "item"
@@ -299,7 +422,7 @@ class ProyectoFabLabDeleteView(LoginRequiredMixin, PermitsPositionMixin, DeleteV
 class ProyectoFabLAbUpdateView(LoginRequiredMixin, PermitsPositionMixin, UpdateView):
     model = FormularioProyectoFabLab
     form_class = ProyectoFabLabCreateForm
-    template_name = "pages/fabrica/fabrica.html"
+    template_name = "pages/fablab/fablab_update.html"
     success_url = reverse_lazy("FabLabFichaList")
 
     def form_valid(self, form):
@@ -320,92 +443,34 @@ class ProyectoFabLAbUpdateView(LoginRequiredMixin, PermitsPositionMixin, UpdateV
 ### ###  Generate PDF
 ############################
 
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab import platypus
+from django.conf import settings
+from django_weasyprint import WeasyTemplateResponseMixin
+import os
 
 
-class GeneratePdfFabricaView(LoginRequiredMixin, View):
-    def generate_pdf(self, formulario_proyecto):
-        response = HttpResponse(content_type="application/pdf")
-        response["Content-Disposition"] = 'attachment; filename="reporte.pdf"'
-        doc = SimpleDocTemplate(response, pagesize=letter)
-        styles = getSampleStyleSheet()
-        # Definir un estilo para los títulos en negrita
-        ParagraphStyle(name="Bold", parent=styles["Normal"], fontName="Helvetica-Bold")
+class PdfView(WeasyTemplateResponseMixin, DetailView):
+    model = FormularioProyectoFabrica
+    template_name = "pdf_formato/pdf.html"
+    pdf_stylesheets = [os.path.join(settings.STATICFILES_DIRS[0], "css", "pdf.css")]
+    pdf_attachment = False
 
-        story = []
-
-        # Título
-        title = f"Título: {formulario_proyecto.nombre_propuesta}"
-        story.append(Paragraph(title, styles["Title"]))
-        story.append(Spacer(1, 12))
-
-        # Imagen
-        if formulario_proyecto.img:
-            img_path = formulario_proyecto.img.path
-            try:
-                img = platypus.Image(img_path, 2 * inch, 2 * inch)
-                story.append(img)
-                story.append(Spacer(1, 12))
-            except Exception as e:
-                print(e)
-                story.append(Paragraph("Error al cargar la imagen.", styles["Normal"]))
-
-        # Detalles del proyecto
-        empresa = f"<b>Empresa:</b> {formulario_proyecto.empresa_id.nombre_empresa}"
-        problema = f"<b>Problema/Desafío:</b><br/>{formulario_proyecto.problema}"
-        objetivos = f"<b>Objetivo:</b><br/>{formulario_proyecto.objetivos}"
-        solucion = f"<b>Solución generada:</b><br/>{formulario_proyecto.solucion}"
-
-        details = f"""
-        {empresa}<br/>
-        <br/>
-        {problema}<br/>
-        <br/>
-        {objetivos}<br/>
-        <br/>
-        {solucion}<br/>
-        """
-        story.append(Paragraph(details, styles["Normal"]))
-        story.append(Spacer(1, 12))
-
-        # Equipo de proyecto
-        docentes = "<br/>".join(
-            [docente.nombre for docente in formulario_proyecto.docentes.all()]
-        )
-        equipo = f"<b>Equipo de proyecto:</b><br/>{docentes}<br/>"
-        equipo += f"Alumnos IP: {formulario_proyecto.alumnos_ip}<br/>"
-        equipo += f"Alumnos CFT: {formulario_proyecto.alumnos_cft}<br/>"
-        story.append(Paragraph(equipo, styles["Normal"]))
-        story.append(Spacer(1, 12))
-
-        # TRL
-        trl = (
-            f"<b>Technology Readiness Levels (TRL):</b> {formulario_proyecto.trl_id.id}"
-        )
-        story.append(Paragraph(trl, styles["Normal"]))
-
-        # Build the PDF
-        doc.build(story)
-        return response
-
-    def get(self, request, *args, **kwargs):
-        cod_id = kwargs.get("pk")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cod_id = self.kwargs.get("pk")
         formulario_proyecto = get_object_or_404(FormularioProyectoFabrica, id=cod_id)
-        return self.generate_pdf(formulario_proyecto)
+        context["formulario_proyecto"] = formulario_proyecto
+        return context
 
 
 ###########################
 ### ## Generate PTT ###
 ###########################
 
-from io import BytesIO
+
 from pptx import Presentation
-from PIL import Image
 from pptx.util import Inches, Pt
+from io import BytesIO
+from PIL import Image as PilImage
 
 
 class GeneratePptFabLabView(LoginRequiredMixin, View):
@@ -460,7 +525,7 @@ class GeneratePptFabLabView(LoginRequiredMixin, View):
                 img_stream = BytesIO(image.image.read())
 
                 # Convertir WEBP a PNG
-                with Image.open(img_stream) as img:
+                with PilImage.open(img_stream) as img:
                     img = img.convert("RGB")  # Convertir a RGB si es necesario
                     png_io = BytesIO()
                     img.save(png_io, format="PNG")

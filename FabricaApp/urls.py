@@ -44,7 +44,7 @@ urlpatterns = [
     ),
     path(
         "ficha_fabrica/generar_pdf/<pk>/",
-        views.GeneratePdfFabricaView.as_view(),
+        views.PdfView.as_view(),
         name="GeneratePdf",
     ),
     path(

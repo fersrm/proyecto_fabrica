@@ -1,0 +1,68 @@
+{% load static %} 
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Reporte de Proyecto</title>
+        <link rel="stylesheet" href="{% static 'css/pdf.css' %}" />
+    </head>
+    <body>
+        <!-- Portada -->
+        <div class="cover-page">
+            <div class="header-images">
+                <div class="container-img">
+                    <img src="{% static 'img/inacap.jpg' %}" alt="Logo">
+                </div>
+                <div class="container-img">
+                    <img src="{% static 'img/logo_fabrica.jpeg' %}" alt="Logo">
+                </div>
+            </div>
+            <h1>Reporte de Proyecto: {{ formulario_proyecto.nombre_propuesta }}</h1>
+            <p><strong>Fecha de Inicio:</strong> {{ formulario_proyecto.fecha_inicio }}</p>
+            <p><strong>Empresa:</strong> {{ formulario_proyecto.empresa_id.nombre_empresa }}</p>
+        </div>
+
+        <div class="page"></div> <!-- Page break -->
+
+        <!-- Contenido Principal -->
+        <div class="container">
+            <div class="section">
+                <h2>Detalles del Proyecto</h2>
+                <p><strong>Empresa:</strong> {{ formulario_proyecto.empresa_id.nombre_empresa }}</p>
+                <p><strong>Docente:</strong> {{ formulario_proyecto.docente_id.nombre }} {{ formulario_proyecto.docente_id.apellido_p }}</p>
+                <p><strong>Problema/Desafío:</strong> {{ formulario_proyecto.problema }}</p>
+                <p><strong>Objetivo:</strong> {{ formulario_proyecto.objetivo }}</p>
+            </div>
+
+            <div class="page"></div> <!-- Page break -->
+
+            <!-- Imágenes -->
+            <div class="section">
+                <h2>Imágenes del Proyecto</h2>
+                <div class="images">
+                    {% for image in formulario_proyecto.images.all %}
+                        <div class="image">
+                            <img src="{{ image.image.url }}" alt="Fabrica">
+                        </div>
+                    {% empty %}
+                        <p>No hay imágenes disponibles.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if formulario_proyecto.fondos %}
+                <div class="page"></div> <!-- Page break -->
+
+                <div class="section">
+                    <h2>Postulación a Fondos</h2>
+                    <p><strong>Technology Readiness Levels (TRL):</strong> {{ formulario_proyecto.fondos_proyecto.first.trl_id.id }}</p>
+                    <p><strong>Problema/Oportunidad:</strong> {{ formulario_proyecto.fondos_proyecto.first.problema_oportunidad }}</p>
+                    <p><strong>Solución Innovadora:</strong> {{ formulario_proyecto.fondos_proyecto.first.solucion_innovadora }}</p>
+                    <p><strong>Plan de Trabajo:</strong> {{ formulario_proyecto.fondos_proyecto.first.plan_trabajo }}</p>
+                    <p><strong>Potencial de Comercialización:</strong> {{ formulario_proyecto.fondos_proyecto.first.potencial_comercializacion }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </body>
+</html>

@@ -1,21 +1,30 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.files.storage import default_storage
+from utils.helpers import resize_image, crop_image
+from .choices import ESTADO_POSTGRADO_CHOICES, ESTADO_PROYECTO_CHOICES
 import uuid
 import os
 
 
-ESTADO_CHOICES = [
-    ("PROCESO", "En Proceso"),
-    ("FINALIZADO", "Finalizado"),
-    ("EN_REVISION", "En Revisión"),
-]
+def upload_to_documentos(instance, filename):
+    codigo_sir = instance.codigo_sir
+    return f"fabrica/{codigo_sir}/documentos/{filename}"
+
+
+def picture_path_fabrica(instance, filename):
+    random_filename = str(uuid.uuid4())
+    extension = os.path.splitext(filename)[1]
+    codigo_sir = instance.ficha_fabrica.codigo_sir
+    return f"fabrica/{codigo_sir}/img/{random_filename}{extension}"
 
 
 def picture_path(instance, filename):
     random_filename = str(uuid.uuid4())
     extension = os.path.splitext(filename)[1]
-    return f"proyectos/{random_filename}{extension}"
+    return f"fablab/img/{random_filename}{extension}"
+
+
+############ DOCENTES ##############
 
 
 class AreaAcademica(models.Model):
@@ -39,8 +48,10 @@ class Rol(models.Model):
 
 
 class PostGrado(models.Model):
-    titulo = models.BooleanField(default=False)
-    estado = models.CharField(max_length=45)  # Titulado , Egresado , En curso
+    titulo = models.CharField(max_length=200)
+    estado = models.CharField(
+        max_length=45, choices=ESTADO_POSTGRADO_CHOICES, default="TITULADO"
+    )
 
     class Meta:
         db_table = "post_grados"
@@ -52,7 +63,9 @@ class PostGrado(models.Model):
 class Profesion(models.Model):
     nombre_titulo = models.CharField(max_length=45)
     licenciatura = models.CharField(max_length=60)
-    estado = models.CharField(max_length=45)
+    estado = models.CharField(
+        max_length=45, choices=ESTADO_POSTGRADO_CHOICES, default="TITULADO"
+    )
 
     class Meta:
         db_table = "profesion"
@@ -80,6 +93,9 @@ class Docente(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+############ EMPRESA #################
 
 
 class Comuna(models.Model):
@@ -118,18 +134,6 @@ class Empresa(models.Model):
         return self.nombre_empresa
 
 
-class TRL(models.Model):
-    trl_tipo = models.CharField(max_length=40)
-    trl = models.CharField(max_length=70)
-
-    class Meta:
-        db_table = "trl"
-        ordering = ["id"]
-
-    def __str__(self):
-        return self.trl_tipo
-
-
 class Cargo(models.Model):
     cargo_contraparte = models.CharField(max_length=45)
 
@@ -157,7 +161,33 @@ class ContraparteEmpresa(models.Model):
         return self.nombre
 
 
-####################################
+############ PROYECTOS #################
+
+
+class TRL(models.Model):
+    trl_tipo = models.CharField(max_length=40)
+    trl = models.CharField(max_length=70)
+
+    class Meta:
+        db_table = "trl"
+        ordering = ["id"]
+
+    def __str__(self):
+        return self.trl_tipo
+
+
+class Sede(models.Model):
+    sede_nombre = models.CharField(max_length=45)
+
+    def __str__(self):
+        return self.sede_nombre
+
+
+###################################################
+########## FORMULARIOS DE PROYECTOS ###############
+###################################################
+
+##### FORMULARIO PROYECTO FABRICA INTERNO CARLA ####
 
 
 class FormularioProyectoInterno(models.Model):
@@ -175,7 +205,9 @@ class FormularioProyectoInterno(models.Model):
     trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
     docente_id = models.ForeignKey(Docente, on_delete=models.CASCADE)
     empresa_id = models.ForeignKey(Empresa, on_delete=models.CASCADE)
-    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default="PROCESO")
+    estado = models.CharField(
+        max_length=20, choices=ESTADO_PROYECTO_CHOICES, default="PROCESO"
+    )
     user_id = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -188,40 +220,31 @@ class FormularioProyectoInterno(models.Model):
         return self.nombre_propuesta
 
 
-################################
+##### FORMULARIO PROYECTO FABRICA ANITA ####
 
 
 class FormularioProyectoFabrica(models.Model):
+    codigo_sir = models.CharField(max_length=25, unique=True)
     nombre_propuesta = models.CharField(max_length=200)
-    problema = models.TextField(max_length=8000)
-    solucion = models.TextField(max_length=8000)
-    objetivos = models.TextField(max_length=8000)
-    img = models.ImageField(upload_to=picture_path, null=True, blank=True)
-    alumnos_ip = models.IntegerField()
-    alumnos_cft = models.IntegerField()
+    fecha_inicio = models.DateField()
     registration_date = models.DateTimeField(auto_now_add=True)
-    docentes = models.ManyToManyField(Docente)
-    trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
+    problema = models.TextField(max_length=8000)  # Descripcion del proyecto
+    objetivo = models.TextField(max_length=5000)
+    metodologia = models.TextField(max_length=8000)
+    docente_id = models.ForeignKey(Docente, on_delete=models.CASCADE)
+    bidireccionalidad = models.FileField(upload_to=upload_to_documentos)
+    contribucion = models.FileField(upload_to=upload_to_documentos)
+    carta_gantt = models.FileField(upload_to=upload_to_documentos)
+    sede_id = models.ForeignKey(Sede, on_delete=models.CASCADE)
     empresa_id = models.ForeignKey(Empresa, on_delete=models.CASCADE)
-    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default="PROCESO")
+    estado = models.CharField(
+        max_length=20, choices=ESTADO_PROYECTO_CHOICES, default="PROCESO"
+    )
+    fondos = models.BooleanField(default=False)
     user_id = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
     )
-
-    def save(self, *args, **kwargs):
-        if self.pk:
-            self.handle_old_image()
-
-        super(FormularioProyectoFabrica, self).save(*args, **kwargs)
-
-    def handle_old_image(self):
-        try:
-            old_profile = FormularioProyectoFabrica.objects.get(pk=self.pk)
-            if self.img and old_profile.img != self.img:
-                default_storage.delete(old_profile.img.path)
-        except FormularioProyectoFabrica.DoesNotExist:
-            pass
 
     class Meta:
         db_table = "formulario_proyecto_fabrica"
@@ -230,7 +253,37 @@ class FormularioProyectoFabrica(models.Model):
         return self.nombre_propuesta
 
 
-#################################
+class FabricaImage(models.Model):
+    image = models.ImageField(upload_to=picture_path_fabrica)
+    ficha_fabrica = models.ForeignKey(
+        FormularioProyectoFabrica, related_name="images", on_delete=models.CASCADE
+    )
+
+    def save(self, *args, **kwargs):
+        super(FabricaImage, self).save(*args, **kwargs)
+
+        if self.image and os.path.exists(self.image.path):
+            resize_image(self.image.path, 500)
+            crop_image(self.image.path, 500)
+
+
+class FormularioProyectoFondos(models.Model):
+    problema_oportunidad = models.TextField(max_length=8000)
+    solucion_innovadora = models.TextField(max_length=8000)
+    plan_trabajo = models.TextField(max_length=8000)
+    potencial_comercializacion = models.TextField(max_length=8000)
+    trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
+    proyecto = models.ForeignKey(
+        FormularioProyectoFabrica,
+        on_delete=models.CASCADE,
+        related_name="fondos_proyecto",
+    )
+
+    class Meta:
+        db_table = "formulario_proyecto_fondos"
+
+
+##### FORMULARIO PROYECTO FABLAB MIGUEL #####
 
 
 class FormularioProyectoFabLab(models.Model):
@@ -241,7 +294,9 @@ class FormularioProyectoFabLab(models.Model):
     registration_date = models.DateTimeField(auto_now_add=True)
     docentes = models.ManyToManyField(Docente)
     trl_id = models.ForeignKey(TRL, on_delete=models.CASCADE)
-    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default="PROCESO")
+    estado = models.CharField(
+        max_length=20, choices=ESTADO_PROYECTO_CHOICES, default="PROCESO"
+    )
     user_id = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -253,3 +308,10 @@ class FabLabImage(models.Model):
     ficha_fablab = models.ForeignKey(
         FormularioProyectoFabLab, related_name="images", on_delete=models.CASCADE
     )
+
+    def save(self, *args, **kwargs):
+        super(FabLabImage, self).save(*args, **kwargs)
+
+        if self.image and os.path.exists(self.image.path):
+            resize_image(self.image.path)
+            crop_image(self.image.path)

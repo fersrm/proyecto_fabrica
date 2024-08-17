@@ -1,0 +1,232 @@
+{% extends 'components/Layout/base_extendido.html' %}
+{% load static %} 
+{% load tailwind_filters %}
+
+{% block head_title %}
+    Fabrica 4.0
+{% endblock head_title %}
+
+{% block content_main %}  
+
+    <div class="grid gap-8 container min-h-screen">
+        <div class="flex min-h-full flex-col justify-center sm:px-6 lg:px-8">
+            <div class="sm:mx-auto sm:w-full sm:max-w-[680px]">
+                <div class="bg-white px-6 py-10 shadow rounded-lg sm:px-12"> 
+                    <h1 class="max-w-2xl font-bold tracking-tight text-gray-900 text-2xl mb-4">Fábrica 4.0</h1>
+                    <form method="post" id="formFabrica"  enctype="multipart/form-data">
+
+                        {% csrf_token %}
+
+                        <h3 class="pb-2 block text-gray-900 text-xl font-bold">1. IDENTIFICACIÓN DEL PROYECTO</h3>
+
+                        <div id="div_codigo_sir" class="mb-3">
+                            <label for="{{ proyecto_form.codigo_sir.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.codigo_sir.label }}
+                            </label>
+                            {{ proyecto_form.codigo_sir }}
+
+                            {% if proyecto_form.codigo_sir.errors %}
+                                {% for error in proyecto_form.codigo_sir.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div id="div_nombre_propuesta" class="mb-3">
+                            <label for="{{ proyecto_form.nombre_propuesta.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.nombre_propuesta.label }}
+                            </label>
+                            {{ proyecto_form.nombre_propuesta }}
+
+                            {% if proyecto_form.nombre_propuesta.errors %}
+                                {% for error in proyecto_form.nombre_propuesta.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div id="div_sede_id" class="mb-3">
+                            <label for="{{ proyecto_form.sede_id.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.sede_id.label }}
+                            </label>
+                            {{ proyecto_form.sede_id }}
+
+                            {% if proyecto_form.sede_id.errors %}
+                                {% for error in proyecto_form.sede_id.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div id="div_fecha_inicio" class="mb-3">
+                            <label for="{{ proyecto_form.fecha_inicio.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.fecha_inicio.label }}
+                            </label>
+                            <input type="date" name="fecha_inicio" value="{{ fecha_inicio }}" class="textinput dateinput block appearance-none w-full border px-4 bg-white text-gray-700 rounded-lg focus:outline-none border-gray-300 leading-normal py-2" required id="id_fecha_inicio">
+
+                            {% if proyecto_form.fecha_inicio.errors %}
+                                {% for error in proyecto_form.fecha_inicio.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div id="div_empresa_id" class="mb-3">
+                            <label for="{{ proyecto_form.empresa_id.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.empresa_id.label }}
+                            </label>
+                            {{ proyecto_form.empresa_id }}
+
+                            {% if proyecto_form.empresa_id.errors %}
+                                {% for error in proyecto_form.empresa_id.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <h4 class="pb-2 block text-gray-900 text-base font-bold">DESCRIPCIÓN DEL PROBLEMA</h4><hr>
+
+                        <div id="div_problema" class="mb-3 pt-2">
+                            <label for="{{ proyecto_form.problema.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.problema.label }}
+                            </label>
+                            {{ proyecto_form.problema }}
+
+                            {% if proyecto_form.problema.errors %}
+                                {% for error in proyecto_form.problema.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div id="div_objetivo" class="mb-3">
+                            <label for="{{ proyecto_form.objetivo.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.objetivo.label }}
+                            </label>
+                            {{ proyecto_form.objetivo }}
+
+                            {% if proyecto_form.objetivo.errors %}
+                                {% for error in proyecto_form.objetivo.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div id="div_metodologia" class="mb-3">
+                            <label for="{{ proyecto_form.metodologia.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.metodologia.label }}
+                            </label>
+                            {{ proyecto_form.metodologia }}
+
+                            {% if proyecto_form.metodologia.errors %}
+                                {% for error in proyecto_form.metodologia.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <h4 class="pb-2 block text-gray-900 text-base font-bold">PLAN DE PROYECTO</h4><hr>
+                        <h5 class="py-2 block text-gray-800 text-sm font-bold">EQUIPO DE TRABAJO</h5>
+
+                        <div id="div_docente_id" class="mb-3">
+                            <label for="{{ proyecto_form.docente_id.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.docente_id.label }}
+                            </label>
+                            {{ proyecto_form.docente_id }}
+
+                            {% if proyecto_form.docente_id.errors %}
+                                {% for error in proyecto_form.docente_id.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div id="div_bidireccionalidad" class="mb-3">
+                            <label for="{{ proyecto_form.bidireccionalidad.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.bidireccionalidad.label }}
+                            </label>
+                            {{ proyecto_form.bidireccionalidad }}
+
+                            {% if proyecto_form.bidireccionalidad.errors %}
+                                {% for error in proyecto_form.bidireccionalidad.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div id="div_contribucion" class="mb-3">
+                            <label for="{{ proyecto_form.contribucion.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.contribucion.label }}
+                            </label>
+                            {{ proyecto_form.contribucion }}
+
+                            {% if proyecto_form.contribucion.errors %}
+                                {% for error in proyecto_form.contribucion.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <h5 class="pb-2 block text-gray-800 text-sm font-bold">DOCUMENTACIÓN</h5>
+
+                        <div id="div_carta_gantt" class="mb-3">
+                            <label for="{{ proyecto_form.carta_gantt.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.carta_gantt.label }}
+                            </label>
+                            {{ proyecto_form.carta_gantt }}
+
+                            {% if proyecto_form.carta_gantt.errors %}
+                                {% for error in proyecto_form.carta_gantt.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div id="div_fondos" class="mb-3">
+                            <label for="{{ proyecto_form.fondos.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.fondos.label }}
+                            </label>
+                            {{ proyecto_form.fondos }}
+
+                            {% if proyecto_form.fondos.errors %}
+                                {% for error in proyecto_form.fondos.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div id="parte2_container" style="display: none;">
+                            <h3 class="pb-2 block text-gray-900 text-xl font-bold">2. POSTULACIÓN FONDOS</h3>
+                            {{ fondos_form|crispy }}
+                        </div>
+
+                        {% include "components/btn/button.html" with button_text="Guardar cambios" %}              
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex min-h-full flex-col justify-normal fixed-element">
+            <div class="sm:mx-auto sm:w-full sm:max-w-[400px]">
+                <div class="bg-white p-6 shadow rounded-lg overflow-y-auto max-h-[600px]"> 
+                    <h1 class="max-w-2xl font-bold tracking-tight text-gray-900 text-2xl mb-4">Instrucciones</h1>
+                    <div id="placeholderText" class="p-2 border rounded text-gray-700">Nombre de la propuesta</div> 
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% include 'components/mensajes.html' %}  
+
+{% endblock content_main %}
+
+{% block javascript %}
+
+    <script defer src="{% static "js/formulario.js" %}"></script>
+    <script defer src="{% static "js/commonForm.js" %}"></script>
+
+
+
+{% endblock javascript %}

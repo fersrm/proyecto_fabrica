@@ -5,7 +5,17 @@ from .models import (
     FormularioProyectoFabrica,
     FormularioProyectoFabLab,
     FabLabImage,
+    FabricaImage,
+    FormularioProyectoFondos,
 )
+from .form_config import PLACEHOLDERS, CLASSES, FORMATOS
+from datetime import date
+import os
+
+
+##############################################
+##### FORMULARIO PROYECTO FABRICA CARLA ######
+##############################################
 
 
 class ProyectoInternoCreateForm(forms.ModelForm):
@@ -28,67 +38,42 @@ class ProyectoInternoCreateForm(forms.ModelForm):
         )
         widgets = {
             "nombre_propuesta": forms.TextInput(
-                attrs={"placeholder": "Nombre de la propuesta"}
+                attrs={"placeholder": PLACEHOLDERS["nombre_propuesta"]}
             ),
-            "area_vinculada": forms.TextInput(attrs={"placeholder": "Área vinculada"}),
+            "area_vinculada": forms.TextInput(
+                attrs={"placeholder": PLACEHOLDERS["area_vinculada"]}
+            ),
             "problema": forms.Textarea(
-                attrs={
-                    "placeholder": "Descripción brevemente el problema presentado ",
-                    "rows": 7,
-                }
+                attrs={"placeholder": PLACEHOLDERS["problema"], "rows": 7}
             ),
             "horas_disponibles": forms.NumberInput(
-                attrs={"placeholder": "En horas ejemplo 2.5"}
+                attrs={"placeholder": PLACEHOLDERS["horas_disponibles"]}
             ),
             "rol_en_propuesta": forms.TextInput(
-                attrs={"placeholder": "Rol en la propuesta"}
+                attrs={"placeholder": PLACEHOLDERS["rol_en_propuesta"]}
             ),
             "problema_oportunidad": forms.Textarea(
-                attrs={
-                    "placeholder": "Describir el problema que se busca resolver o la oportunidad que se busca abordar acotándolo a los alcances de la solución innovadora propuesta. Fundamentar quiénes se ven directamente afectados por este y entregar cifras, datos e información respaldada que permita cuantificar la magnitud del problema u oportunidad planteada (Papers, publicaciones, patentes, etc.). (Mínimo 5000/ Máximo 8000 caracteres)",
-                    "rows": 7,
-                }
+                attrs={"placeholder": PLACEHOLDERS["problema_oportunidad"], "rows": 7}
             ),
             "solucion_innovadora": forms.Textarea(
-                attrs={
-                    "placeholder": """-.Describir la solución innovadora que se pretende desarrollar para resolver el problema o abordar la oportunidad identificada,fundamentando la agregación de valor respecto a la oferta actualmente disponible en el mercado y/o en los procesos productivos de las empresas/ organizaciones, y la incertidumbre tecnológica asociada (Papers, publicaciones, patentes, etc.). (Mínimo 5000 caracteres)                                                                     
--.Identificar y describir qué desarrollos tecnológicos y/o comerciales se han realizado recientemente a nivel nacional e internacional,     indicando las fuentes de información que lo respaldan (estado del arte), y en qué se diferencia la solución innovadora que se quiere llevar a cabo en el proyecto (Papers, publicaciones, patentes, etc.).                                                                           
--.Indicar si existe alguna consideración y/o restricción legal, normativa, sanitaria, propiedad intelectual, entre otros,que pueda afectar el desarrollo y/o implementación de la solución innovadora y cómo será abordada (N° Ley, Resolución, artículos, etc.).""",
-                    "rows": 7,
-                }
+                attrs={"placeholder": PLACEHOLDERS["solucion_innovadora"], "rows": 7}
             ),
-            "trl_id": forms.Select(
-                attrs={"placeholder": "Nivel de madurez tecnológica"}
-            ),
+            "trl_id": forms.Select(attrs={"placeholder": PLACEHOLDERS["trl_id"]}),
             "estado_avance": forms.Textarea(
-                attrs={
-                    "placeholder": "Descripción Estado de avance",
-                    "rows": 7,
-                }
+                attrs={"placeholder": PLACEHOLDERS["estado_avance"], "rows": 7}
             ),
             "innovacion_proceso": forms.Textarea(
-                attrs={
-                    "placeholder": """
-                    INNOVACIÓN EN PRODUCTO (BIEN O SERVICIO)  
-
--.Caracterizar la oferta y demanda del mercado potencial del nuevo/mejorado producto (bien o servicio), acotado a los alcances de la solución innovadora propuesta. 
--.Caracterizar el segmento de mercado (clientes y/o usuarios potenciales) que estaría interesado en comprar y/o utilizar el nuevo/mejorado producto (bien o servicio) resultante de la propuesta. Describir el modelo de negocios que permitirá comercializar el nuevo o mejorado producto (bien o servicio) resultante de la propuesta, al cliente y/o usuario potencial identificado. 
-
-                    INNOVACIÓN EN PROCESO 
-
--.Detalle cómo se implementará el nuevo o mejorado proceso obtenido en la empresa/organizaciones, antes del término de la propuesta. 
--.Describa y cuantifique cómo el nuevo o mejorado proceso impactará en el proceso productivo de la(s) empresa(s)/organizaciones vinculadas a la propuesta (reducción del costo y/o mejorará la calidad). """,
-                    "rows": 7,
-                }
+                attrs={"placeholder": PLACEHOLDERS["innovacion_proceso"], "rows": 7}
             ),
             "plan_trabajo": forms.Textarea(
-                attrs={
-                    "placeholder": "Indique el objetivo general de la propuesta y objetivos específico",
-                    "rows": 7,
-                }
+                attrs={"placeholder": PLACEHOLDERS["plan_trabajo"], "rows": 7}
             ),
-            "docente_id": forms.Select(attrs={"placeholder": "Docente asociado"}),
-            "empresa_id": forms.Select(attrs={"placeholder": "Empresa asociada"}),
+            "docente_id": forms.Select(
+                attrs={"placeholder": PLACEHOLDERS["docente_id"]}
+            ),
+            "empresa_id": forms.Select(
+                attrs={"placeholder": PLACEHOLDERS["empresa_id"]}
+            ),
         }
         labels = {
             "problema": "Problema Presentado",
@@ -100,57 +85,180 @@ class ProyectoInternoCreateForm(forms.ModelForm):
         }
 
 
+##############################################
+##### FORMULARIO PROYECTO FABRICA ANITA ######
+##############################################
+
+
 class ProyectoFabricaCreateForm(forms.ModelForm):
     class Meta:
         model = FormularioProyectoFabrica
         fields = (
+            "codigo_sir",
             "nombre_propuesta",
-            "problema",
-            "solucion",
-            "objetivos",
-            "img",
-            "alumnos_ip",
-            "alumnos_cft",
-            "docentes",
-            "trl_id",
+            "sede_id",
+            "fecha_inicio",
             "empresa_id",
+            "problema",
+            "objetivo",
+            "metodologia",
+            "docente_id",
+            "bidireccionalidad",
+            "contribucion",
+            "carta_gantt",
+            "fondos",
         )
         widgets = {
+            "codigo_sir": forms.TextInput(
+                attrs={
+                    "placeholder": PLACEHOLDERS["codigo_sir"],
+                    "class": CLASSES["textinput"],
+                }
+            ),
             "nombre_propuesta": forms.TextInput(
-                attrs={"placeholder": "Nombre de la propuesta"}
+                attrs={
+                    "placeholder": PLACEHOLDERS["nombre_propuesta"],
+                    "class": CLASSES["textinput"],
+                }
+            ),
+            "fecha_inicio": forms.DateInput(
+                attrs={"type": "date", "class": CLASSES["textinput"]}
             ),
             "problema": forms.Textarea(
                 attrs={
-                    "placeholder": "Descripción brevemente el problema presentado ",
+                    "placeholder": PLACEHOLDERS["problema"],
                     "rows": 7,
+                    "class": CLASSES["textarea"],
                 }
             ),
-            "solucion": forms.Textarea(
+            "objetivo": forms.Textarea(
                 attrs={
-                    "placeholder": """-.Describir la solución innovadora que se pretende desarrollar para resolver el problema o abordar la oportunidad identificada,fundamentando la agregación de valor respecto a la oferta actualmente disponible en el mercado y/o en los procesos productivos de las empresas/ organizaciones, y la incertidumbre tecnológica asociada (Papers, publicaciones, patentes, etc.). (Mínimo 5000 caracteres)                                                                     
--.Identificar y describir qué desarrollos tecnológicos y/o comerciales se han realizado recientemente a nivel nacional e internacional,     indicando las fuentes de información que lo respaldan (estado del arte), y en qué se diferencia la solución innovadora que se quiere llevar a cabo en el proyecto (Papers, publicaciones, patentes, etc.).                                                                           
--.Indicar si existe alguna consideración y/o restricción legal, normativa, sanitaria, propiedad intelectual, entre otros,que pueda afectar el desarrollo y/o implementación de la solución innovadora y cómo será abordada (N° Ley, Resolución, artículos, etc.).""",
+                    "placeholder": PLACEHOLDERS["objetivo"],
                     "rows": 7,
+                    "class": CLASSES["textarea"],
                 }
             ),
-            "objetivos": forms.Textarea(
+            "metodologia": forms.Textarea(
                 attrs={
-                    "placeholder": "Objetivos",
+                    "placeholder": PLACEHOLDERS["metodologia"],
                     "rows": 7,
+                    "class": CLASSES["textarea"],
                 }
             ),
-            "trl_id": forms.Select(
-                attrs={"placeholder": "Nivel de madurez tecnológica"}
+            "docente_id": forms.Select(
+                attrs={
+                    "placeholder": PLACEHOLDERS["docente_id"],
+                    "class": CLASSES["select"],
+                }
             ),
-            "docente_id": forms.Select(attrs={"placeholder": "Docente asociado"}),
-            "empresa_id": forms.Select(attrs={"placeholder": "Empresa asociada"}),
+            "empresa_id": forms.Select(
+                attrs={
+                    "placeholder": PLACEHOLDERS["empresa_id"],
+                    "class": CLASSES["select"],
+                }
+            ),
+            "sede_id": forms.Select(
+                attrs={"placeholder": "Sede", "class": CLASSES["select"]}
+            ),
+            "carta_gantt": forms.FileInput(attrs={"accept": FORMATOS["excel"]}),
+            "bidireccionalidad": forms.FileInput(attrs={"accept": FORMATOS["excel"]}),
+            "contribucion": forms.FileInput(attrs={"accept": FORMATOS["excel"]}),
         }
         labels = {
-            "problema": "Problema Presentado",
-            "docente_id": "Docentes Asociados",
-            "empresa_id": "Empresa u organization Asociada",
+            "codigo_sir": "Id de proyecto",
+            "nombre_propuesta": "Título del Proyecto",
+            "problema": "Introducción o Contexto del Problema",
+            "objetivo": "Objetivo del Proyecto",
+            "metodologia": "Metodología",
+            "docente_id": "Docente líder",
+            "bidireccionalidad": "Bidireccionalidad",
+            "contribucion": "Contribución",
+            "sede_id": "Sede",
+            "empresa_id": "Empresa u organización asociada",
+            "carta_gantt": "Carta Gantt",
+            "fondos": "Postula a fondos concursables",
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Validaciones para archivos
+        carta_gantt = cleaned_data.get("carta_gantt")
+        bidireccionalidad = cleaned_data.get("bidireccionalidad")
+        contribucion = cleaned_data.get("contribucion")
+
+        documents = [carta_gantt, bidireccionalidad, contribucion]
+
+        for document in documents:
+            if document:
+                if not document.name.endswith(".xlsx"):
+                    raise forms.ValidationError(
+                        "El archivo debe ser de formato Excel (xlsx)."
+                    )
+
+                max_size = 5 * 1024 * 1024  # 5 MB
+                if document.size > max_size:
+                    raise forms.ValidationError(
+                        "El tamaño del archivo no puede ser mayor a 5 megabytes."
+                    )
+
+        return cleaned_data
+
+    def clean_fecha_inicio(self):
+        fecha_inicio = self.cleaned_data.get("fecha_inicio")
+
+        if fecha_inicio and fecha_inicio > date.today():
+            raise forms.ValidationError(
+                "La fecha de inicio no puede ser mayor a la fecha actual."
+            )
+
+        return fecha_inicio
+
+
+#### FORMULARIO PROYECTO FABRICA FONDOS ####
+
+
+class ProyectoFabricaFondosCreateForm(forms.ModelForm):
+    class Meta:
+        model = FormularioProyectoFondos
+        fields = (
+            "problema_oportunidad",
+            "solucion_innovadora",
+            "potencial_comercializacion",
+            "plan_trabajo",
+            "trl_id",
+        )
+
+        widgets = {
+            "problema_oportunidad": forms.Textarea(
+                attrs={"placeholder": PLACEHOLDERS["problema_oportunidad"], "rows": 7}
+            ),
+            "solucion_innovadora": forms.Textarea(
+                attrs={"placeholder": PLACEHOLDERS["solucion_innovadora"], "rows": 7}
+            ),
+            "potencial_comercializacion": forms.Textarea(
+                attrs={
+                    "placeholder": PLACEHOLDERS["potencial_comercializacion"],
+                    "rows": 7,
+                }
+            ),
+            "plan_trabajo": forms.Textarea(
+                attrs={"placeholder": PLACEHOLDERS["plan_trabajo"], "rows": 7}
+            ),
+            "trl_id": forms.Select(attrs={"placeholder": PLACEHOLDERS["trl_id"]}),
+        }
+
+        labels = {
+            "solucion_innovadora": "Solución innovadora",
+            "problema_oportunidad": "Problema u oportunidad",
+            "potencial_comercializacion": "Potencial de comercialización",
             "trl_id": "Nivel de madurez tecnológica",
         }
+
+
+##############################################
+##### FORMULARIO PROYECTO FABLAB #############
+##############################################
 
 
 class ProyectoFabLabCreateForm(forms.ModelForm):
@@ -166,39 +274,54 @@ class ProyectoFabLabCreateForm(forms.ModelForm):
         )
         widgets = {
             "nombre_propuesta": forms.TextInput(
-                attrs={"placeholder": "Nombre de la propuesta"}
+                attrs={"placeholder": PLACEHOLDERS["nombre_propuesta"]}
             ),
             "problema": forms.Textarea(
-                attrs={
-                    "placeholder": "Descripción brevemente el problema presentado ",
-                    "rows": 7,
-                }
+                attrs={"placeholder": PLACEHOLDERS["problema"], "rows": 7}
             ),
             "solucion": forms.Textarea(
-                attrs={
-                    "placeholder": """-.Describir la solución innovadora que se pretende desarrollar para resolver el problema o abordar la oportunidad identificada,fundamentando la agregación de valor respecto a la oferta actualmente disponible en el mercado y/o en los procesos productivos de las empresas/ organizaciones, y la incertidumbre tecnológica asociada (Papers, publicaciones, patentes, etc.). (Mínimo 5000 caracteres)                                                                     
--.Identificar y describir qué desarrollos tecnológicos y/o comerciales se han realizado recientemente a nivel nacional e internacional,     indicando las fuentes de información que lo respaldan (estado del arte), y en qué se diferencia la solución innovadora que se quiere llevar a cabo en el proyecto (Papers, publicaciones, patentes, etc.).                                                                           
--.Indicar si existe alguna consideración y/o restricción legal, normativa, sanitaria, propiedad intelectual, entre otros,que pueda afectar el desarrollo y/o implementación de la solución innovadora y cómo será abordada (N° Ley, Resolución, artículos, etc.).""",
-                    "rows": 7,
-                }
+                attrs={"placeholder": PLACEHOLDERS["solucion_innovadora"], "rows": 7}
             ),
-            "trl_id": forms.Select(
-                attrs={"placeholder": "Nivel de madurez tecnológica"}
+            "trl_id": forms.Select(attrs={"placeholder": PLACEHOLDERS["trl_id"]}),
+            "docentes": forms.SelectMultiple(
+                attrs={"placeholder": PLACEHOLDERS["docente_id"]}
             ),
-            "docente_id": forms.Select(attrs={"placeholder": "Docente asociado"}),
         }
         labels = {
             "problema": "Problema Presentado",
-            "docente_id": "Docentes Asociados",
+            "docentes": "Docentes Asociados",
             "trl_id": "Nivel de madurez tecnológica",
         }
 
+    def clean_docentes(self):
+        docentes = self.cleaned_data.get("docentes")
+        if docentes is None or len(docentes) == 0:
+            raise forms.ValidationError("Debe seleccionar al menos un docente.")
 
+        return docentes
+
+
+#############################################
+######  MANEJO DE MULTIPLES IMÁGENES #######
 #############################################
 
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
+
+    def __init__(self, attrs=None):
+        attrs = attrs or {}
+        attrs.update({"accept": FORMATOS["img"]})
+        super().__init__(attrs)
+
+
+def validate_file_extension(file_name):
+    allowed_extensions = [".webp", ".png", ".jpg", ".jpeg"]
+    extension = os.path.splitext(file_name)[1].lower()
+    if extension not in allowed_extensions:
+        raise ValidationError(
+            f"El archivo '{file_name}' no tiene un formato permitido. Solo se permiten archivos .webp, .png y .jpg."
+        )
 
 
 class MultipleFileField(forms.FileField):
@@ -208,20 +331,48 @@ class MultipleFileField(forms.FileField):
 
     def clean(self, data, initial=None):
         single_file_clean = super().clean
+
         if isinstance(data, (list, tuple)):
-            if len(data) > 4:
-                raise ValidationError("Solo puedes subir un máximo de 4 imágenes.")
-            result = [single_file_clean(d, initial) for d in data]
+            if len(data) != 4:
+                raise ValidationError("Deben ser 4 imágenes.")
+
+            # Validar el formato de cada archivo
+            result = []
+            for d in data:
+                if d:
+                    validate_file_extension(d.name)
+                    result.append(single_file_clean(d, initial))
+
         else:
+            validate_file_extension(data.name)
             result = single_file_clean(data, initial)
+
         return result
 
 
+#################################################
+#### FORMULARIOS PARA LAS IMÁGENES ##############
+#################################################
+
+########## FORMULARIO DE IMÁGENES FABLAB ########
+
+
 class ImageForm(forms.ModelForm):
-    image = MultipleFileField(label="Select files", required=False)
+    image = MultipleFileField(label="Incluir imágenes (4 imágenes)", required=False)
 
     class Meta:
         model = FabLabImage
+        fields = [
+            "image",
+        ]
+
+
+########## FORMULARIO DE IMÁGENES FABRICA ########
+class ImageFabricaForm(forms.ModelForm):
+    image = MultipleFileField(label="Incluir imágenes (4 imágenes)", required=False)
+
+    class Meta:
+        model = FabricaImage
         fields = [
             "image",
         ]

@@ -2,7 +2,7 @@
 {% load static %}   
 
 {% block head_title %}
-    Fabrica 4.0 Fichas
+    Fabrica 4.0
 {% endblock head_title %}
 
 {% block content_main %}  
@@ -12,39 +12,61 @@
             <div class="mx-auto max-w-7xl px-6 lg:px-8 py-10">
                 <div class="mx-auto max-w-4xl divide-y divide-gray-900/10">
                     
-                    <div class="py-8">
-                        <div class="flex flex-col lg:flex-row lg:justify-between">
-                            <div class="flex-shrink-0">
-                                <img src="{{ item.img.url }}" alt="{{ item.nombre_propuesta }}" class="h-52 w-72 object-cover rounded-md">
+                    <h2 class="text-2xl font-bold leading-10 tracking-tight text-gray-900 pb-2">Ficha Propuesta Fábrica</h2>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Título del Proyecto: </span>{{ item.nombre_propuesta }}</p>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Sede: </span>{{ item.sede_id.sede_nombre }}</p>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Fecha de incio: </span>{{ item.fecha_inicio }}</p>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Nombre de la empresa: </span>{{ item.empresa_id.nombre_empresa }}</p>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Docente Lider: </span>{{ item.docente_id.nombre }} {{ item.dicente_id.apellido_p }}</p>
+
+                    <p class="mt-1 p-[10px] flex justify-between">
+                        <span class="text-base font-semibold leading-7">Carta Gantt: </span>
+                        <a href="{{ item.carta_gantt.url }}" download class="flex w-12 justify-center rounded-md bg-orange-300 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ">
+                            {% include "components/svg/svg_descargar.html" %}
+                        </a>
+                    </p>
+
+                    <!-- EQUIPO DE TRABAJO -->
+                    <h2 class="text-xl font-bold leading-10 tracking-tight text-gray-900 pb-2">Equipo de trabajo</h2>
+                    <p class="mt-1 p-[10px] flex justify-between">
+                        <span class="text-base font-semibold leading-7">Docentes: </span>
+                        <a href="{{ item.bidireccionalidad }}" download class="flex w-12 justify-center rounded-md bg-orange-300 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ">
+                            {% include "components/svg/svg_descargar.html" %}
+                        </a>
+                    </p>
+
+                    <p class="mt-1 p-[10px] flex justify-between">
+                        <span class="text-base font-semibold leading-7">Alumnos: </span>
+                        <a href="{{ item.contribucion }}" download class="flex w-12 justify-center rounded-md bg-orange-300 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ">
+                            {% include "components/svg/svg_descargar.html" %}
+                        </a>
+                    </p>
+
+                    <!-- Imágenes -->
+                    <div class="grid grid-cols-2 gap-4 py-3">
+                        {% for image in item.images.all %}
+                            <div class="flex justify-center items-center">
+                                <img src="{{ image.image.url }}" alt="Fabrica" class="h-52 w-72 object-cover rounded-md">
                             </div>
-                            <div class="mt-6 lg:mt-0 lg:ml-6">
-                                <h2 class="text-2xl font-bold text-gray-900">{{ item.nombre_propuesta }}</h2>
-                                <p class="text-sm text-gray-500">Empresa: {{ item.empresa_id.nombre_empresa }}</p>
-                            </div>
-                        </div>
+                        {% empty %}
+                            <p class="text-center col-span-2">No hay imágenes disponibles.</p>
+                        {% endfor %}
                     </div>
 
-                    <div class="py-8 pl-[10px]">
-                        <h3 class="text-xl font-semibold text-gray-900">Equipo de proyecto</h3>
-                        <p class="mt-2 text-gray-700">Docentes:</p>
-                        <ul class="list-disc list-inside ml-4">
-                            {% for docente in item.docentes.all %}
-                                <li>{{ docente.nombre }}</li>
-                            {% endfor %}
-                        </ul>
-                        <p class="mt-2 text-gray-700">Alumnos IP: {{ item.alumnos_ip }}</p>
-                        <p class="mt-2 text-gray-700">Alumnos CFT: {{ item.alumnos_cft }}</p>
-                    </div>
-                    <div class="py-8 pl-[10px]">
-                        <h3 class="text-xl font-semibold text-gray-900">Technology Readiness Levels (TRL)</h3>
-                        <div class="flex items-center">
-                            <span class="mr-2 text-gray-700">Nivel: {{ item.trl_id.id }}</span>
-                            <div id="trl-container" class="flex space-x-2">
-                                <!-- TRL Levels will be appended here by JS -->
+                    {% if item.fondos %}
+                    
+                        <div class="py-8 pl-[10px]">
+                            <h3 class="text-xl font-semibold text-gray-900">Technology Readiness Levels (TRL)</h3>
+                            <div class="flex items-center">
+                                <span class="mr-2 text-gray-700">Nivel: {{ item.fondos_proyecto.first.trl_id.id }}</span>
+                                <div id="trl-container" class="flex space-x-2">
+                                    <!-- TRL Levels will be appended here by JS -->
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
+
+                    {% endif %}
+
                     <dl class="mt-1 space-y-6 divide-y divide-gray-900/10" x-data="{ openFaq: null }">
                         <div x-data="{ isOpen: false }">
                             <dt>
@@ -86,7 +108,7 @@
                                 </button>
                             </dt>
                             <dd class="pl-6 pr-5" x-show="isOpen">
-                                <p class="text-base leading-7 text-gray-600">{{ item.objetivos }}</p>
+                                <p class="text-base leading-7 text-gray-600">{{ item.objetivo }}</p>
                             </dd>
                         </div>
                         <!-- ---->
@@ -94,7 +116,7 @@
                             <dt>
                                 <!-- Expand/collapse question button -->
                                 <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" @click="isOpen = !isOpen">
-                                    <span class="text-base font-semibold leading-7">Soluccion</span>
+                                    <span class="text-base font-semibold leading-7">Metodologia</span>
                                     <span class="ml-6 flex h-7 items-center">
                                         <!-- Icon when question is collapsed -->
                                         <svg x-show="!isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
@@ -108,9 +130,104 @@
                                 </button>
                             </dt>
                             <dd class="pl-6 pr-5" x-show="isOpen">
-                                <p class="text-base leading-7 text-gray-600">{{ item.solucion }}</p>
+                                <p class="text-base leading-7 text-gray-600">{{ item.metodologia }}</p>
                             </dd>
                         </div>
+                        <!--  INFO DE LOS FONDOS ---->
+                        
+                        {% if item.fondos %}
+
+                            <p class="mt-2 p-[10px]"><span class="font-semibold leading-7 text-2xl">Postula a fondos</p>
+                            <div x-data="{ isOpen: false }">
+                                <dt>
+                                    <!-- Expand/collapse question button -->
+                                    <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" @click="isOpen = !isOpen">
+                                        <span class="text-base font-semibold leading-7">Problema u oportunidad</span>
+                                        <span class="ml-6 flex h-7 items-center">
+                                            <!-- Icon when question is collapsed -->
+                                            <svg x-show="!isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                                            </svg>
+                                            <!-- Icon when question is expanded -->
+                                            <svg x-show="isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </dt>
+                                <dd class="pl-6 pr-5" x-show="isOpen">
+                                    <p class="text-base leading-7 text-gray-600">{{ item.fondos_proyecto.first.problema_oportunidad }}</p>
+                                </dd>
+                            </div>
+                            <!-- ----> 
+                            <div x-data="{ isOpen: false }">
+                                <dt>
+                                    <!-- Expand/collapse question button -->
+                                    <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" @click="isOpen = !isOpen">
+                                        <span class="text-base font-semibold leading-7">Solución innovadora</span>
+                                        <span class="ml-6 flex h-7 items-center">
+                                            <!-- Icon when question is collapsed -->
+                                            <svg x-show="!isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                                            </svg>
+                                            <!-- Icon when question is expanded -->
+                                            <svg x-show="isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </dt>
+                                <dd class="pl-6 pr-5" x-show="isOpen">
+                                    <p class="text-base leading-7 text-gray-600">{{ item.fondos_proyecto.first.solucion_innovadora }}</p>
+                                </dd>
+                            </div>   
+                            <!-- ----> 
+                            <div x-data="{ isOpen: false }">
+                                <dt>
+                                    <!-- Expand/collapse question button -->
+                                    <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" @click="isOpen = !isOpen">
+                                        <span class="text-base font-semibold leading-7">Potencial de comercializacion</span>
+                                        <span class="ml-6 flex h-7 items-center">
+                                            <!-- Icon when question is collapsed -->
+                                            <svg x-show="!isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                                            </svg>
+                                            <!-- Icon when question is expanded -->
+                                            <svg x-show="isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </dt>
+                                <dd class="pl-6 pr-5" x-show="isOpen">
+                                    <p class="text-base leading-7 text-gray-600">{{ item.fondos_proyecto.first.potencial_comercializacion }}</p>
+                                </dd>
+                            </div>   
+                            <!-- ----> 
+                            <div x-data="{ isOpen: false }">
+                                <dt>
+                                    <!-- Expand/collapse question button -->
+                                    <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" @click="isOpen = !isOpen">
+                                        <span class="text-base font-semibold leading-7">Plan de trabajo</span>
+                                        <span class="ml-6 flex h-7 items-center">
+                                            <!-- Icon when question is collapsed -->
+                                            <svg x-show="!isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                                            </svg>
+                                            <!-- Icon when question is expanded -->
+                                            <svg x-show="isOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </dt>
+                                <dd class="pl-6 pr-5" x-show="isOpen">
+                                    <p class="text-base leading-7 text-gray-600">{{ item.fondos_proyecto.first.plan_trabajo }}</p>
+                                </dd>
+                            </div> 
+
+                        {% endif %}
+                        
                     </dl>
                 </div>
             </div>
@@ -120,20 +237,23 @@
     <strong>NO HAY REGISTROS</strong>
 
     {% endif %} 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const trlContainer = document.getElementById('trl-container');
-            const currentLevel = {{ item.trl_id.id }};
-            for (let i = 1; i <= 9; i++) {
-                const levelDot = document.createElement('div');
-                levelDot.classList.add('w-4', 'h-4', 'rounded-full', 'flex', 'items-center', 'justify-center');
-                if (i === currentLevel) {
-                    levelDot.classList.add('bg-red-600', 'ring-2', 'ring-red-500');
-                } else {
-                    levelDot.classList.add('bg-black');
+    
+    {% if item.fondos %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const trlContainer = document.getElementById('trl-container');
+                const currentLevel = {{ item.fondos_proyecto.first.trl_id.id  }};
+                for (let i = 1; i <= 9; i++) {
+                    const levelDot = document.createElement('div');
+                    levelDot.classList.add('w-4', 'h-4', 'rounded-full', 'flex', 'items-center', 'justify-center');
+                    if (i === currentLevel) {
+                        levelDot.classList.add('bg-red-600', 'ring-2', 'ring-red-500');
+                    } else {
+                        levelDot.classList.add('bg-black');
+                    }
+                    trlContainer.appendChild(levelDot);
                 }
-                trlContainer.appendChild(levelDot);
-            }
-        });
-    </script>
+            });
+        </script>
+    {% endif %}
 {% endblock content_main %}

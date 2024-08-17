@@ -13,10 +13,16 @@ from .models import (
     ContraparteEmpresa,
     Rol,
     FormularioProyectoFabLab,
+    FormularioProyectoFabrica,
+    Sede,
 )
 
 
 # Register your models here.
+class SedeAdmin(admin.ModelAdmin):
+    list_display = ("sede_nombre",)
+
+
 class TRLAdmin(admin.ModelAdmin):
     list_display = ("trl",)
 
@@ -53,10 +59,6 @@ class EmpresaAdmin(admin.ModelAdmin):
     list_display = ("nombre_empresa",)
 
 
-class FormularioProyectoInternoAdmin(admin.ModelAdmin):
-    list_display = ("nombre_propuesta",)
-
-
 class CargoAdmin(admin.ModelAdmin):
     list_display = ("cargo_contraparte",)
 
@@ -74,6 +76,14 @@ class FormularioProyectoFabLabAdmin(admin.ModelAdmin):
     list_display = ("nombre_propuesta",)
 
 
+class FormularioProyectoFabricaAdmin(admin.ModelAdmin):
+    list_display = ("codigo_sir",)
+
+
+class FormularioProyectoInternoAdmin(admin.ModelAdmin):
+    list_display = ("nombre_propuesta",)
+
+
 admin.site.register(TRL, TRLAdmin)
 admin.site.register(Rol, RolAdmin)
 admin.site.register(Comuna, ComunaAdmin)
@@ -83,7 +93,9 @@ admin.site.register(PostGrado, PostGradoAdmin)
 admin.site.register(Profesion, ProfesionAdmin)
 admin.site.register(Rubro, RubroAdmin)
 admin.site.register(Empresa, EmpresaAdmin)
-admin.site.register(FormularioProyectoInterno, FormularioProyectoInternoAdmin)
 admin.site.register(Cargo, CargoAdmin)
 admin.site.register(ContraparteEmpresa, ContraparteEmpresaAdmin)
+admin.site.register(Sede, SedeAdmin)
+admin.site.register(FormularioProyectoInterno, FormularioProyectoInternoAdmin)
 admin.site.register(FormularioProyectoFabLab, FormularioProyectoFabLabAdmin)
+admin.site.register(FormularioProyectoFabrica, FormularioProyectoFabricaAdmin)

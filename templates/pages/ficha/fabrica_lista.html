@@ -2,7 +2,7 @@
 {% load static %}   
 
 {% block head_title %}
-    Fabrica 4.0 Fichas
+    Fabrica 4.0
 {% endblock head_title %}
 
 {% block content_main %}  
@@ -20,8 +20,9 @@
                 </colgroup>
                 <thead class="border-b border-white/10 text-sm leading-6 text-white">
                 <tr>
+                    <th scope="col" class=" py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-10">Código SIR</th>
                     <th scope="col" class=" py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-10">Nombre propuesta</th>
-                    <th scope="col" class=" py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-10">Fecha</th>
+                    <th scope="col" class=" py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-10">Fecha de registro</th>
                     <th scope="col" class=" py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-10">Acciones</th>
                 </tr>
                 </thead>
@@ -30,6 +31,9 @@
                 {% for item in object_list %}
 
                     <tr>
+                        <td class=" py-4 pl-0 pr-8 text-sm leading-6 text-gray-400 md:table-cell lg:pr-10">
+                            {{ item.codigo_sir }}
+                        </td>
                         <td class=" py-4 pl-0 pr-8 text-sm leading-6 text-gray-400 md:table-cell lg:pr-10">
                             {{ item.nombre_propuesta }}
                         </td>
@@ -41,17 +45,18 @@
                                 <a href="{% url "FabriFichaDetail" item.id %}" class="flex w-12 justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ">
                                     {% include "components/svg/svg_ver.html" %}
                                 </a>
+                                <a href="{% url 'GeneratePdf' item.id %}" target="_blank" class="flex items-center w-12 justify-center rounded-md bg-orange-300 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400">
+                                    {% include "components/svg/svg_descargar.html" %}
+                                </a>
+                                <a href="{% url "FabriFichaUpdate" item.id %}" class="flex items-center w-12 justify-center rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-emerald-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600">
+                                        {% include "components/svg/svg_editar.html" %}
+                                </a>
+
                                 {% if user.profile.position_FK.id and user.profile.position_FK.id != 3  %}
 
-                                    <a href="{% url 'GeneratePdf' item.id %}" class="flex items-center w-12 justify-center rounded-md bg-orange-300 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400">
-                                        {% include "components/svg/svg_descargar.html" %}
-                                    </a>
-                                    <a href="{% url "FabriFichaDelete" item.id %}" onclick="return confirm('¿Estás seguro de que deseas borrar el proyecto?');" class="flex items-center w-12 justify-center rounded-md bg-red-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 ">
-                                        {% include "components/svg/svg_eliminar.html" %}
-                                    </a>
-                                    <a href="{% url "FabriFichaUpdate" item.id %}" class="flex items-center w-12 justify-center rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-emerald-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600">
-                                        {% include "components/svg/svg_editar.html" %}
-                                    </a>
+                                <a href="{% url "FabriFichaDelete" item.id %}" onclick="return confirm('¿Estás seguro de que deseas borrar el proyecto?');" class="flex items-center w-12 justify-center rounded-md bg-red-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 ">
+                                    {% include "components/svg/svg_eliminar.html" %}
+                                </a>
 
                                 {% endif %}
                             </div>

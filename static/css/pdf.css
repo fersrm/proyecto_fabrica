@@ -1,0 +1,107 @@
+/* General Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Page Break */
+.page {
+    page-break-after: always;
+}
+
+/* Cover Page */
+.cover-page {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #000;
+}
+
+.header-images {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6rem;
+}
+
+.container-img {
+    width: 150px;
+    margin: 0 10px;
+}
+
+.container-img img {
+    width: 100%;
+    height: auto;
+}
+
+.cover-page h1 {
+    font-size: 24px;
+    color: #000;
+    margin-bottom: 10px;
+}
+
+.cover-page p {
+    font-size: 16px;
+    color: #000;
+}
+
+/* Content Sections */
+.container {
+    padding: 20px;
+}
+
+.section {
+    margin-bottom: 20px;
+}
+
+.section h2 {
+    font-size: 22px;
+    color: #c8102e; /* Rojo Institucional */
+    margin-bottom: 10px;
+    border-bottom: 1px solid #c8102e;
+    padding-bottom: 5px;
+}
+
+.section p {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 5px;
+}
+
+/* Image Gallery */
+.images {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+.image {
+    width: 250px;
+}
+
+.image img {
+    width: 100%;
+    height: auto;
+}
+
+/* Footer */
+@page {
+    margin: 20mm;
+}
+
+@page :first {
+    @bottom-center {
+        content: none;
+    }
+}
+
+@page {
+    @bottom-center {
+        content: "Página " counter(page) " de " counter(pages);
+    }
+}
