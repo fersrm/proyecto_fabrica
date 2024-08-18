@@ -3,33 +3,40 @@
 {% load tailwind_filters %}
 
 {% block head_title %}
-  Registrar Usuario
+    Registrar Usuario
 {% endblock head_title %}
 
 {% block content_pages %}
 
-  <h1 class="max-w-2xl font-bold tracking-tight text-gray-900 text-2xl mb-4">Registrar Usuario</h1>
-  <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
+    <h1 class="max-w-2xl font-bold tracking-tight text-gray-900 text-2xl mb-4">Registrar Usuario</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
-      {% include 'components/input_perfil.html' with img="/static/img/profile.webp" %}
-      
-      <label for="id_position_FK" class="block text-gray-700 text-sm font-bold mb-2">
-        Cargo
-      </label>
-      {{ profile_form.position_FK }}
-      {{ user_form|crispy }}
+        {% include 'components/input_perfil.html' with img="/static/img/profile.webp" %}
+        
+        <div id="div_id_position_FK">
+            <label for="{{ profile_form.position_FK.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                Cargo
+            </label>
+            {{ profile_form.position_FK }}
+            {% if profile_form.position_FK.errors %}
+                {% for error in profile_form.position_FK.errors %}
+                    <strong>{{ error }}</strong>
+                {% endfor %}
+            {% endif %}
+        </div>
 
-      {% include "components/btn/button.html" with button_text="Guardar cambios" %}
-      
-  </form>
+        {{ user_form|crispy }}
 
-  {% include 'components/mensajes.html' %}  
+        {% include "components/btn/button.html" with button_text="Guardar cambios" %}
+    </form>
+
+    {% include 'components/mensajes.html' %}  
 
 {% endblock content_pages %}    
 
 {% block javascript %}
 
-  <script defer src="{% static "js/script.js" %}"></script>
+    <script defer src="{% static "js/script.js" %}"></script>
 
 {% endblock javascript %}

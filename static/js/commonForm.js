@@ -46,3 +46,31 @@ if (btnLimpiar) {
         }
     });
 }
+
+// Lógica input files
+(function (document, window) {
+    const inputs = document.querySelectorAll('input[type="file"]');
+
+    inputs.forEach(function (input) {
+        const label = input.nextElementSibling;
+        const labelVal = label ? label.innerHTML : "";
+
+        input.addEventListener("change", function (e) {
+            let fileName = "";
+            if (this.files && this.files.length > 1) {
+                fileName = `${this.files.length} archivos seleccionados`;
+            } else {
+                fileName = e.target.value.split("\\").pop();
+            }
+
+            if (label) {
+                const span = label.querySelector("span");
+                if (span) {
+                    span.innerHTML = fileName;
+                } else {
+                    label.innerHTML = fileName || labelVal;
+                }
+            }
+        });
+    });
+})(document, window);

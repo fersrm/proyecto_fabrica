@@ -15,7 +15,7 @@
                     <h1 class="max-w-2xl font-bold tracking-tight text-gray-900 text-2xl mb-4">Fábrica 4.0</h1>
                     <form method="post" id="formFabrica"  enctype="multipart/form-data">
                         {% csrf_token %}
-                        
+
                         <h3 class="pb-2 block text-gray-900 text-xl font-bold">1. IDENTIFICACIÓN DEL PROYECTO</h3>
 
                         <div id="div_codigo_sir" class="mb-3">
@@ -142,11 +142,14 @@
                             {% endif %}
                         </div>
 
-                        <div id="div_bidireccionalidad" class="mb-3">
-                            <label for="{{ parte1_form.bidireccionalidad.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
-                                {{ parte1_form.bidireccionalidad.label }}
-                            </label>
+                        <div id="div_bidireccionalidad" class="container-input">
+                            <p class="block text-gray-700 text-sm font-bold mb-2">{{ parte1_form.bidireccionalidad.label }}</p> 
                             {{ parte1_form.bidireccionalidad }}
+                            
+                            <label for="{{ parte1_form.bidireccionalidad.id_for_label }}">
+                                {% include "components/svg/svg_subir_archivo.html" %}
+                                <span class="iborrainputfile">Seleccionar archivo</span>
+                            </label>
 
                             {% if parte1_form.bidireccionalidad.errors %}
                                 {% for error in parte1_form.bidireccionalidad.errors %}
@@ -154,12 +157,15 @@
                                 {% endfor %}
                             {% endif %}
                         </div>
-                        
-                        <div id="div_contribucion" class="mb-3">
-                            <label for="{{ parte1_form.contribucion.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
-                                {{ parte1_form.contribucion.label }}
-                            </label>
+
+                        <div id="div_contribucion" class="container-input">
+                            <p class="block text-gray-700 text-sm font-bold mb-2">{{ parte1_form.contribucion.label }}</p> 
                             {{ parte1_form.contribucion }}
+                            
+                            <label for="{{ parte1_form.contribucion.id_for_label }}">
+                                {% include "components/svg/svg_subir_archivo.html" %}
+                                <span class="iborrainputfile">Seleccionar archivo</span>
+                            </label>
 
                             {% if parte1_form.contribucion.errors %}
                                 {% for error in parte1_form.contribucion.errors %}
@@ -171,11 +177,14 @@
                         <h5 class="pb-2 block text-gray-800 text-sm font-bold">DOCUMENTACIÓN</h5>
                         <hr class="pb-2">
 
-                        <div id="div_carta_gantt" class="mb-3">
-                            <label for="{{ parte1_form.carta_gantt.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
-                                {{ parte1_form.carta_gantt.label }}
-                            </label>
+                        <div id="div_carta_gantt" class="container-input">
+                            <p class="block text-gray-700 text-sm font-bold mb-2">{{ parte1_form.carta_gantt.label }}</p> 
                             {{ parte1_form.carta_gantt }}
+                            
+                            <label for="{{ parte1_form.carta_gantt.id_for_label }}">
+                                {% include "components/svg/svg_subir_archivo.html" %}
+                                <span class="iborrainputfile">Seleccionar archivo</span>
+                            </label>
 
                             {% if parte1_form.carta_gantt.errors %}
                                 {% for error in parte1_form.carta_gantt.errors %}
@@ -187,7 +196,21 @@
                         <h4 class="pb-2 block text-gray-900 text-base font-bold">IMÁGINES</h4>
                         <hr class="pb-2">
 
-                        {{ image_form|crispy }}
+                        <p class="block text-gray-700 text-sm font-bold mb-2">{{ image_form.image.label }}</p> 
+                        <div id="div_id_image" class="container-input">
+                            {{ image_form.image }}
+
+                            <label for="{{ image_form.image.id_for_label }}">
+                                {% include "components/svg/svg_subir_archivo.html" %}
+                                <span class="iborrainputfile">Seleccionar archivos</span>
+                            </label>
+
+                            {% if image_form.image.errors %}
+                                {% for error in image_form.image.errors %}
+                                    <strong>{{ error }}</strong>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
 
                         <div id="div_fondos" class="mb-3">
                             <label for="{{ parte1_form.fondos.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">

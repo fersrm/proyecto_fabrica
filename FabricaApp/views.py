@@ -443,34 +443,305 @@ class ProyectoFabLAbUpdateView(LoginRequiredMixin, PermitsPositionMixin, UpdateV
 ### ###  Generate PDF
 ############################
 from io import BytesIO
-from PIL import Image as PilImage
-from django.template.loader import get_template
-from xhtml2pdf import pisa
-
-
-def render_to_pdf(template_src, context_dict={}):
-    template = get_template(template_src)
-    html = template.render(context_dict)
-    result = BytesIO()
-
-    try:
-        pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), dest=result)
-        if not pdf.err:
-            result.seek(0)
-            return HttpResponse(result.getvalue(), content_type="application/pdf")
-    except Exception as e:
-        print(f"Error generating PDF: {e}")
-
-    return HttpResponse("Error generating PDF", content_type="text/plain")
+from django.conf import settings
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Image,
+    Table,
+    TableStyle,
+    PageBreak,
+)
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.colors import red, HexColor
+from reportlab.graphics.shapes import Drawing, Line
+import os
 
 
 class PdfView(View):
+    def generate_pdf(self, formulario_proyecto):
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = 'attachment; filename="reporte.pdf"'
+        doc = SimpleDocTemplate(
+            response,
+            pagesize=letter,
+            leftMargin=20,
+            rightMargin=20,
+            topMargin=30,
+            bottomMargin=20,
+        )
+
+        # Estilos
+        styles = getSampleStyleSheet()
+        normal_style = styles["Normal"]
+        title_style = styles["Title"]
+        bold_style = ParagraphStyle(
+            name="Bold", parent=styles["Normal"], fontName="Helvetica-Bold"
+        )
+        red_bold_style = ParagraphStyle(
+            name="RedBold",
+            parent=styles["Normal"],
+            fontName="Helvetica-Bold",
+            fontSize=14,
+            textColor=red,
+        )
+        dark_gray_color = HexColor("#333333")
+
+        # Crear estilos personalizados para los párrafos
+
+        normal_style.fontSize = 12
+        normal_style.leading = 20
+        normal_style.textColor = dark_gray_color
+        normal_style.spaceAfter = 12
+
+        # Página de portada
+        story = []
+
+        ############################################################################################
+        # Imágenes de portada desde static
+        static_path = settings.STATICFILES_DIRS[0]
+        img_inacap_path = os.path.join(static_path, "img/inacap.jpg")
+        img_logo_fabrica_path = os.path.join(static_path, "img/logo_fabrica.jpeg")
+
+        img_inacap = (
+            Image(img_inacap_path, 2 * inch, 1 * inch)
+            if os.path.exists(img_inacap_path)
+            else None
+        )
+        img_logo_fabrica = (
+            Image(img_logo_fabrica_path, 1.6 * inch, 1.6 * inch)
+            if os.path.exists(img_logo_fabrica_path)
+            else None
+        )
+
+        table_data = []
+        if img_inacap or img_logo_fabrica:
+            row = []
+            row.append(img_inacap)
+            row.append(Spacer(4 * inch, 1 * inch))
+            row.append(img_logo_fabrica)
+            table_data.append(row)
+
+        if table_data:
+            table = Table(table_data, colWidths=[2 * inch, 4 * inch, 2 * inch])
+            table.setStyle(
+                TableStyle(
+                    [
+                        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ]
+                )
+            )
+            story.append(table)
+
+        #################################################################################################
+        # Portada
+        story.append(Spacer(1, 1 * inch))
+        story.append(
+            Paragraph(
+                "Reporte de Proyecto: %s" % formulario_proyecto.nombre_propuesta,
+                title_style,
+            )
+        )
+        story.append(Spacer(1, 200))
+
+        # Fecha y empresa (más abajo)
+        story.append(
+            Paragraph(
+                "<strong>Fecha de Inicio:</strong> %s"
+                % formulario_proyecto.fecha_inicio,
+                bold_style,
+            )
+        )
+        story.append(Spacer(1, 6))
+        story.append(
+            Paragraph(
+                "<strong>Empresa:</strong> %s"
+                % formulario_proyecto.empresa_id.nombre_empresa,
+                bold_style,
+            )
+        )
+        story.append(Spacer(1, 12))
+
+        story.append(PageBreak())
+        ###################################################################################################
+        # Nueva página para el contenido
+
+        story.append(
+            Paragraph("<strong>Detalles del Proyecto</strong>", red_bold_style)
+        )
+        drawing = Drawing()
+        line_width = 550
+        line = Line(0, 0, line_width, 0)
+        line.strokeColor = red
+        line.strokeWidth = 1
+        drawing.add(line)
+        drawing.height = 10
+        drawing.width = line_width
+        story.append(drawing)
+        ###################################################################################################
+
+        story.append(Spacer(1, 12))
+
+        # Añadir párrafos con separación y colores
+        story.append(
+            Paragraph(
+                "<strong>Empresa:</strong> <font color='%s'>%s</font>"
+                % (dark_gray_color, formulario_proyecto.empresa_id.nombre_empresa),
+                normal_style,
+            )
+        )
+        story.append(Spacer(1, 12))
+        story.append(
+            Paragraph(
+                "<strong>Docente:</strong> <font color='%s'>%s %s</font>"
+                % (
+                    dark_gray_color,
+                    formulario_proyecto.docente_id.nombre,
+                    formulario_proyecto.docente_id.apellido_p,
+                ),
+                normal_style,
+            )
+        )
+        story.append(Spacer(1, 12))
+        story.append(
+            Paragraph(
+                "<strong>Problema/Desafío:</strong> <font color='%s'>%s</font>"
+                % (dark_gray_color, formulario_proyecto.problema),
+                normal_style,
+            )
+        )
+        story.append(Spacer(1, 12))
+        story.append(
+            Paragraph(
+                "<strong>Objetivo:</strong> <font color='%s'>%s</font>"
+                % (dark_gray_color, formulario_proyecto.objetivo),
+                normal_style,
+            )
+        )
+        story.append(Spacer(1, 12))
+
+        story.append(PageBreak())
+
+        #####################################################################################################
+        # Nueva página para el contenido
+
+        story.append(
+            Paragraph("<strong>Imágenes del Proyecto</strong>", red_bold_style)
+        )
+        drawing = Drawing()
+        line_width = 550
+        line = Line(0, 0, line_width, 0)
+        line.strokeColor = red
+        line.strokeWidth = 1
+        drawing.add(line)
+        drawing.height = 10
+        drawing.width = line_width
+        story.append(drawing)
+        ###################################################################################################
+
+        story.append(Spacer(1, 24))
+
+        images = [
+            Image(image.image.path, 3 * inch, 3 * inch)
+            for image in formulario_proyecto.images.all()
+        ]  # Tamaño aumentado
+
+        # Crear tabla para las imágenes en dos columnas
+        if images:
+            image_table_data = []
+            for i in range(0, len(images), 2):
+                row = images[i : i + 2]
+                image_table_data.append(row)
+
+            image_table = Table(
+                image_table_data, colWidths=[3.5 * inch] * 2
+            )  # Ajustar el ancho de las columnas
+            image_table.setStyle(
+                TableStyle(
+                    [
+                        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                        ("SPACEBEFORE", (0, 0), (-1, 0), 12),
+                        ("SPACEAFTER", (0, 0), (-1, -1), 12),
+                    ]
+                )
+            )
+            story.append(image_table)
+        else:
+            story.append(Paragraph("No hay imágenes disponibles.", normal_style))
+
+        story.append(PageBreak())
+
+        #####################################################################################################
+        # Nueva página para el contenido
+
+        if formulario_proyecto.fondos:
+            story.append(
+                Paragraph("<strong>Postulación a Fondos</strong>", red_bold_style)
+            )
+            drawing = Drawing()
+            line_width = 550
+            line = Line(0, 0, line_width, 0)
+            line.strokeColor = red
+            line.strokeWidth = 1
+            drawing.add(line)
+            drawing.height = 10
+            drawing.width = line_width
+            story.append(drawing)
+
+            story.append(Spacer(1, 12))
+            fondos = formulario_proyecto.fondos_proyecto.first()
+            story.append(
+                Paragraph(
+                    "<strong>Technology Readiness Levels (TRL):</strong> <font color='%s'>%s</font>"
+                    % (dark_gray_color, fondos.trl_id.id),
+                    normal_style,
+                )
+            )
+            story.append(Spacer(1, 12))
+            story.append(
+                Paragraph(
+                    "<strong>Problema/Oportunidad:</strong> <font color='%s'>%s</font>"
+                    % (dark_gray_color, fondos.problema_oportunidad),
+                    normal_style,
+                )
+            )
+            story.append(Spacer(1, 12))
+            story.append(
+                Paragraph(
+                    "<strong>Solución Innovadora:</strong> <font color='%s'>%s</font>"
+                    % (dark_gray_color, fondos.solucion_innovadora),
+                    normal_style,
+                )
+            )
+            story.append(Spacer(1, 12))
+            story.append(
+                Paragraph(
+                    "<strong>Plan de Trabajo:</strong> <font color='%s'>%s</font>"
+                    % (dark_gray_color, fondos.plan_trabajo),
+                    normal_style,
+                )
+            )
+            story.append(Spacer(1, 12))
+            story.append(
+                Paragraph(
+                    "<strong>Potencial de Comercialización:</strong> <font color='%s'>%s</font>"
+                    % (dark_gray_color, fondos.potencial_comercializacion),
+                    normal_style,
+                )
+            )
+
+        doc.build(story)
+        return response
+
     def get(self, request, *args, **kwargs):
         cod_id = kwargs.get("pk")
         formulario_proyecto = get_object_or_404(FormularioProyectoFabrica, id=cod_id)
-        context = {"formulario_proyecto": formulario_proyecto}
-        pdf = render_to_pdf("pdf_formato/pdf.html", context)
-        return HttpResponse(pdf, content_type="application/pdf")
+        return self.generate_pdf(formulario_proyecto)
 
 
 ###########################
@@ -480,6 +751,7 @@ class PdfView(View):
 
 from pptx import Presentation
 from pptx.util import Inches, Pt
+from PIL import Image as PilImage
 
 
 class GeneratePptFabLabView(LoginRequiredMixin, View):

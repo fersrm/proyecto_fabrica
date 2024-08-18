@@ -84,9 +84,10 @@
                             {% endif %}
                         </div>
 
-                        <h4 class="pb-2 block text-gray-900 text-base font-bold">DESCRIPCIÓN DEL PROBLEMA</h4><hr>
+                        <h4 class="pb-2 block text-gray-900 text-base font-bold">DESCRIPCIÓN DEL PROBLEMA</h4>
+                        <hr class="pb-2" >
 
-                        <div id="div_problema" class="mb-3 pt-2">
+                        <div id="div_problema" class="mb-3">
                             <label for="{{ proyecto_form.problema.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
                                 {{ proyecto_form.problema.label }}
                             </label>
@@ -125,8 +126,9 @@
                             {% endif %}
                         </div>
 
-                        <h4 class="pb-2 block text-gray-900 text-base font-bold">PLAN DE PROYECTO</h4><hr>
-                        <h5 class="py-2 block text-gray-800 text-sm font-bold">EQUIPO DE TRABAJO</h5>
+                        <h4 class="pb-2 block text-gray-900 text-base font-bold">PLAN DE PROYECTO</h4>
+                        <hr class="pb-2" >
+                        <h5 class="pb-2 block text-gray-800 text-sm font-bold">EQUIPO DE TRABAJO</h5>
 
                         <div id="div_docente_id" class="mb-3">
                             <label for="{{ proyecto_form.docente_id.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
@@ -141,11 +143,14 @@
                             {% endif %}
                         </div>
 
-                        <div id="div_bidireccionalidad" class="mb-3">
-                            <label for="{{ proyecto_form.bidireccionalidad.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
-                                {{ proyecto_form.bidireccionalidad.label }}
-                            </label>
+                        <div id="div_bidireccionalidad" class="container-input">
+                            <p class="block text-gray-700 text-sm font-bold mb-2">{{ proyecto_form.bidireccionalidad.label }}</p> 
                             {{ proyecto_form.bidireccionalidad }}
+
+                            <label for="{{ proyecto_form.bidireccionalidad.id_for_label }}">
+                                {% include "components/svg/svg_subir_archivo.html" %}
+                                <span class="iborrainputfile">Seleccionar archivo</span>
+                            </label>
 
                             {% if proyecto_form.bidireccionalidad.errors %}
                                 {% for error in proyecto_form.bidireccionalidad.errors %}
@@ -154,11 +159,14 @@
                             {% endif %}
                         </div>
 
-                        <div id="div_contribucion" class="mb-3">
-                            <label for="{{ proyecto_form.contribucion.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
-                                {{ proyecto_form.contribucion.label }}
-                            </label>
+                        <div id="div_contribucion" class="container-input">
+                            <p class="block text-gray-700 text-sm font-bold mb-2">{{ proyecto_form.contribucion.label }}</p> 
                             {{ proyecto_form.contribucion }}
+                            
+                            <label for="{{ proyecto_form.contribucion.id_for_label }}">
+                                {% include "components/svg/svg_subir_archivo.html" %}
+                                <span class="iborrainputfile">Seleccionar archivo</span>
+                            </label>
 
                             {% if proyecto_form.contribucion.errors %}
                                 {% for error in proyecto_form.contribucion.errors %}
@@ -168,12 +176,16 @@
                         </div>
 
                         <h5 class="pb-2 block text-gray-800 text-sm font-bold">DOCUMENTACIÓN</h5>
+                        <hr class="pb-2">
 
-                        <div id="div_carta_gantt" class="mb-3">
-                            <label for="{{ proyecto_form.carta_gantt.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
-                                {{ proyecto_form.carta_gantt.label }}
-                            </label>
+                        <div id="div_carta_gantt" class="container-input">
+                            <p class="block text-gray-700 text-sm font-bold mb-2">{{ proyecto_form.carta_gantt.label }}</p> 
                             {{ proyecto_form.carta_gantt }}
+                            
+                            <label for="{{ proyecto_form.carta_gantt.id_for_label }}">
+                                {% include "components/svg/svg_subir_archivo.html" %}
+                                <span class="iborrainputfile">Seleccionar archivo</span>
+                            </label>
 
                             {% if proyecto_form.carta_gantt.errors %}
                                 {% for error in proyecto_form.carta_gantt.errors %}
@@ -226,7 +238,5 @@
 
     <script defer src="{% static "js/formulario.js" %}"></script>
     <script defer src="{% static "js/commonForm.js" %}"></script>
-
-
 
 {% endblock javascript %}

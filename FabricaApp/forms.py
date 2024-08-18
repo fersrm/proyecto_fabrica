@@ -187,22 +187,24 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
         bidireccionalidad = cleaned_data.get("bidireccionalidad")
         contribucion = cleaned_data.get("contribucion")
 
-        documents = [carta_gantt, bidireccionalidad, contribucion]
+        documents = {
+            "carta_gantt": carta_gantt,
+            "bidireccionalidad": bidireccionalidad,
+            "contribucion": contribucion,
+        }
 
-        for document in documents:
+        for field_name, document in documents.items():
             if document:
                 if not document.name.endswith(".xlsx"):
-                    raise forms.ValidationError(
-                        "El archivo debe ser de formato Excel (xlsx)."
+                    self.add_error(
+                        field_name, "El archivo debe ser de formato Excel (xlsx)."
                     )
-
                 max_size = 5 * 1024 * 1024  # 5 MB
                 if document.size > max_size:
-                    raise forms.ValidationError(
-                        "El tamaño del archivo no puede ser mayor a 5 megabytes."
+                    self.add_error(
+                        field_name,
+                        "El tamaño del archivo no puede ser mayor a 5 megabytes.",
                     )
-
-        return cleaned_data
 
     def clean_fecha_inicio(self):
         fecha_inicio = self.cleaned_data.get("fecha_inicio")

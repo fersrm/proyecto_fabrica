@@ -10,5 +10,10 @@
         </button>
     </div>
     <span id="nameImg" class="overflow-auto block pt-1"></span>
-</div>
 
+    {% if profile_form.image.errors %}
+        {% for error in profile_form.image.errors %}
+            <strong>{{ error }}</strong>
+        {% endfor %}
+    {% endif %}
+</div>
