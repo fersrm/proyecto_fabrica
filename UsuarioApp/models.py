@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.utils import timezone
 from utils.helpers import resize_image, crop_image
+from .choices import PERMISOS
 import uuid
 import os
 
@@ -19,6 +20,9 @@ def profile_picture_path(instance, filename):
 # Create your models here.
 class Position(models.Model):
     user_position = models.CharField(max_length=45, unique=True)
+    permission_code = models.CharField(
+        max_length=25, choices=PERMISOS, default="RESTRICTED"
+    )
 
     class Meta:
         db_table = "position"

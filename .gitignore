@@ -163,6 +163,8 @@ venv.bak/
 
 # mkdocs documentation
 /site
+fabrica/
+users/
 
 # mypy
 .mypy_cache/

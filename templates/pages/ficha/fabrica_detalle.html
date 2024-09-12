@@ -16,7 +16,7 @@
                     <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Título del Proyecto: </span>{{ item.nombre_propuesta }}</p>
                     <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Sede: </span>{{ item.sede_id.sede_nombre }}</p>
                     <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Fecha de incio: </span>{{ item.fecha_inicio }}</p>
-                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Nombre de la empresa: </span>{{ item.empresa_id.nombre_empresa }}</p>
+                    <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Nombre de la empresa: </span>{{ item.empresa }}</p>
                     <p class="mt-1 p-[10px]"><span class="text-base font-semibold leading-7">Docente Lider: </span>{{ item.docente_id.nombre }} {{ item.dicente_id.apellido_p }}</p>
 
                     <p class="mt-1 p-[10px] flex justify-between">
@@ -29,14 +29,14 @@
                     <!-- EQUIPO DE TRABAJO -->
                     <h2 class="text-xl font-bold leading-10 tracking-tight text-gray-900 pb-2">Equipo de trabajo</h2>
                     <p class="mt-1 p-[10px] flex justify-between">
-                        <span class="text-base font-semibold leading-7">Docentes: </span>
+                        <span class="text-base font-semibold leading-7">Bidireccionalidad: </span>
                         <a href="{{ item.bidireccionalidad.url }}" download class="flex w-12 justify-center rounded-md bg-orange-300 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ">
                             {% include "components/svg/svg_descargar.html" %}
                         </a>
                     </p>
 
                     <p class="mt-1 p-[10px] flex justify-between">
-                        <span class="text-base font-semibold leading-7">Alumnos: </span>
+                        <span class="text-base font-semibold leading-7">Contribución: </span>
                         <a href="{{ item.contribucion.url }}" download class="flex w-12 justify-center rounded-md bg-orange-300 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ">
                             {% include "components/svg/svg_descargar.html" %}
                         </a>
@@ -46,7 +46,7 @@
                     <div class="grid grid-cols-2 gap-4 py-3">
                         {% for image in item.images.all %}
                             <div class="flex justify-center items-center">
-                                <img src="{{ image.image.url }}" alt="Fabrica" class="h-52 w-72 object-cover rounded-md">
+                                <img src="{{ image.image.url }}" alt="Fabrica" class="h-64 w-72 object-cover object-top rounded-md">
                             </div>
                         {% empty %}
                             <p class="text-center col-span-2">No hay imágenes disponibles.</p>
@@ -57,7 +57,7 @@
                     
                         <div class="py-8 pl-[10px]">
                             <h3 class="text-xl font-semibold text-gray-900">Technology Readiness Levels (TRL)</h3>
-                            <div class="flex items-center">
+                            <div class="flex items-center mt-4">
                                 <span class="mr-2 text-gray-700">Nivel: {{ item.fondos_proyecto.first.trl_id.id }}</span>
                                 <div id="trl-container" class="flex space-x-2">
                                     <!-- TRL Levels will be appended here by JS -->
@@ -243,7 +243,7 @@
             document.addEventListener('DOMContentLoaded', function() {
                 const trlContainer = document.getElementById('trl-container');
                 const currentLevel = {{ item.fondos_proyecto.first.trl_id.id  }};
-                for (let i = 1; i <= 9; i++) {
+                for (let i = 1; i <= 8; i++) {
                     const levelDot = document.createElement('div');
                     levelDot.classList.add('w-4', 'h-4', 'rounded-full', 'flex', 'items-center', 'justify-center');
                     if (i === currentLevel) {

@@ -7,20 +7,6 @@
     <header>  
         <!-- Stats -->
         <div class="grid grid-cols-1 bg-gray-700/10 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="border-t border-white/5 py-6 px-4 sm:px-6 lg:px-8">
-                <p class="text-sm font-medium leading-6 text-gray-400">Total de proyectos Internos cargados</p>
-                <p class="mt-2 flex items-baseline gap-x-2">
-                    <span class="text-4xl font-semibold tracking-tight text-white">{{ proyecto_count|default_if_none:"No ahi registro" }}</span>
-                </p>
-            </div>
-            <div class="border-t border-white/5 py-6 px-4 sm:px-6 lg:px-8 sm:border-l">
-                <p class="text-sm font-medium leading-6 text-gray-400">Última fecha de actualización</p>
-                <p class="mt-2 flex items-baseline gap-x-2">
-                    <span class="text-2xl font-semibold tracking-tight text-white">{{ latest_registration_date|default_if_none:"No hay registro"|naturaltime }}</span>
-                </p>
-                <span class="text-sm text-gray-400">Por el usuario: {{ latest_registration_user|default_if_none:"No ahi registro" }}</span>
-            </div>
-
             <div class="border-t border-white/5 py-6 px-4 sm:px-6 lg:px-8 sm:border-l">
                 <p class="text-sm font-medium leading-6 text-gray-400">Total de proyectos Fabrica cargados</p>
                 <p class="mt-2 flex items-baseline gap-x-2">
@@ -34,6 +20,17 @@
                 </p>
                 <span class="text-sm text-gray-400">Por el usuario: {{ latest_registration_user_ficha|default_if_none:"No ahi registro" }}</span>
             </div>
+            <!---------------------------------------------------------------------------------->
+            {% if user.profile.position_FK.permission_code != "RESTRICTED" %}
+                <div class="border-t border-white/5 py-6 px-4 sm:px-6 lg:px-8 sm:border-l">
+                    <p class="text-sm font-medium leading-6 text-gray-400">Descargar proyectos Fabrica</p>
+                    <p class="mt-4 flex items-baseline gap-x-2">
+                        <a href="{% url 'descargar_proyectos_fabrica' %}" download class="flex w-12 justify-center rounded-md bg-orange-300 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400 ">
+                            {% include "components/svg/svg_descargar.html" %}
+                        </a>
+                    </p>
+                </div>
+            {% endif %}
         </div>
     </header>
 
@@ -75,17 +72,13 @@
                             <td class="hidden py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20 sm:table-cell">
                                 <div class="flex items-center justify-end gap-x-2 sm:justify-start">
                                     <div class="hidden text-white sm:block">
-                                        {% if user.is_superuser %}
+                                        {% if user.profile.position_FK.permission_code != "RESTRICTED" %}
                                             <span class="inline-flex flex-shrink-0 items-center rounded-full bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                                                Super Usuario
-                                            </span>
-                                        {% elif user.is_staff %}
-                                            <span class="inline-flex flex-shrink-0 items-center rounded-full bg-indigo-50 px-1.5 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-green-600/20">
-                                                Staff
+                                              {{ user.profile.position_FK.user_position }}
                                             </span>
                                         {% else %}
                                             <span class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-green-600/20">
-                                                Usuario
+                                                {{ user.profile.position_FK.user_position }}
                                             </span> 
                                         {% endif %}
                                     </div>

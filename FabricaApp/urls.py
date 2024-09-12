@@ -2,21 +2,6 @@ from django.urls import path
 from FabricaApp import views
 
 urlpatterns = [
-    path("", views.ProyectoInternoCreateView.as_view(), name="FabriCreate"),
-    path("list/", views.ProyectoInternoListView.as_view(), name="FabriList"),
-    path(
-        "ficha/<int:id>/", views.ProyectoInternoDetailView.as_view(), name="FabriDetail"
-    ),
-    path(
-        "eliminar/<int:pk>/",
-        views.ProyectoInternoDeleteView.as_view(),
-        name="FabriDelete",
-    ),
-    path(
-        "editar/<int:pk>/",
-        views.ProyectoInternoUpdateView.as_view(),
-        name="FabriUpdate",
-    ),
     path(
         "ficha_fabrica/",
         views.ProyectoFabricaCreateView.as_view(),
@@ -46,35 +31,5 @@ urlpatterns = [
         "ficha_fabrica/generar_pdf/<pk>/",
         views.PdfView.as_view(),
         name="GeneratePdf",
-    ),
-    path(
-        "ficha_fablab/",
-        views.ProyectoFabLabCreateView.as_view(),
-        name="FabLabFichaCreate",
-    ),
-    path(
-        "ficha_fablab/list/",
-        views.ProyectoFabLabListView.as_view(),
-        name="FabLabFichaList",
-    ),
-    path(
-        "ficha_fablab/detalle/<int:id>/",
-        views.ProyectoFabLabDetailView.as_view(),
-        name="FabLabFichaDetail",
-    ),
-    path(
-        "ficha_fablab/eliminar/<int:pk>/",
-        views.ProyectoFabLabDeleteView.as_view(),
-        name="FabLabFichaDelete",
-    ),
-    path(
-        "ficha_fablab/editar/<int:pk>/",
-        views.ProyectoFabLAbUpdateView.as_view(),
-        name="FabLabFichaUpdate",
-    ),
-    path(
-        "ficha_fablab/generar_ppt/<int:pk>/",
-        views.GeneratePptFabLabView.as_view(),
-        name="GeneratePpt",
     ),
 ]

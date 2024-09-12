@@ -1,6 +1,8 @@
 const fondosCheckbox = document.querySelector("#id_fondos");
 const parte2Container = document.querySelector("#parte2_container");
 const formFabrica = document.querySelector("#formFabrica");
+const textareas = document.querySelectorAll("textarea");
+const btnLimpiar = document.querySelector("#btnLimpiar");
 const requiredFields = parte2Container.querySelectorAll(
     "input, textarea, select"
 );
@@ -24,7 +26,6 @@ toggleParte2();
 fondosCheckbox.addEventListener("change", toggleParte2);
 
 // Lógica de limpiar campos solo si existe el botón btnLimpiar
-const btnLimpiar = document.querySelector("#btnLimpiar");
 if (btnLimpiar) {
     btnLimpiar.addEventListener("click", function () {
         const inputsAll = formFabrica.querySelectorAll(
@@ -44,6 +45,20 @@ if (btnLimpiar) {
         if (parte2Container.style.display === "block") {
             requiredFields.forEach((field) => (field.value = ""));
         }
+
+        // Reiniciar el contador de caracteres de todos los textareas
+        textareas.forEach(function (textarea) {
+            const updateCounter = () => {
+                const currentLength = textarea.value.length;
+                const maxLength = textarea.getAttribute("maxlength");
+                const counter =
+                    textarea.parentNode.querySelector(".char-counter");
+                if (counter) {
+                    counter.textContent = `${currentLength}/${maxLength}`;
+                }
+            };
+            updateCounter(); // Llama a la función de actualización del contador
+        });
     });
 }
 
@@ -74,3 +89,22 @@ if (btnLimpiar) {
         });
     });
 })(document, window);
+
+// lógica de conteo de letras
+textareas.forEach(function (textarea) {
+    const maxLength = textarea.getAttribute("maxlength");
+    const counter = document.createElement("div");
+    counter.className = "char-counter";
+    counter.style.fontSize = "0.9em";
+    counter.style.textAlign = "right";
+    counter.style.color = "#666";
+    textarea.parentNode.appendChild(counter);
+
+    const updateCounter = () => {
+        const currentLength = textarea.value.length;
+        counter.textContent = `${currentLength}/${maxLength}`;
+    };
+
+    textarea.addEventListener("input", updateCounter);
+    updateCounter();
+});

@@ -1,96 +1,33 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import (
-    FormularioProyectoInterno,
     FormularioProyectoFabrica,
-    FormularioProyectoFabLab,
-    FabLabImage,
     FabricaImage,
     FormularioProyectoFondos,
 )
 from .form_config import PLACEHOLDERS, CLASSES, FORMATOS
 from datetime import date
+from unidecode import unidecode
 import os
 
 
 ##############################################
-##### FORMULARIO PROYECTO FABRICA CARLA ######
-##############################################
-
-
-class ProyectoInternoCreateForm(forms.ModelForm):
-    class Meta:
-        model = FormularioProyectoInterno
-        fields = (
-            "nombre_propuesta",
-            "area_vinculada",
-            "problema",
-            "horas_disponibles",
-            "rol_en_propuesta",
-            "problema_oportunidad",
-            "solucion_innovadora",
-            "estado_avance",
-            "innovacion_proceso",
-            "plan_trabajo",
-            "trl_id",
-            "docente_id",
-            "empresa_id",
-        )
-        widgets = {
-            "nombre_propuesta": forms.TextInput(
-                attrs={"placeholder": PLACEHOLDERS["nombre_propuesta"]}
-            ),
-            "area_vinculada": forms.TextInput(
-                attrs={"placeholder": PLACEHOLDERS["area_vinculada"]}
-            ),
-            "problema": forms.Textarea(
-                attrs={"placeholder": PLACEHOLDERS["problema"], "rows": 7}
-            ),
-            "horas_disponibles": forms.NumberInput(
-                attrs={"placeholder": PLACEHOLDERS["horas_disponibles"]}
-            ),
-            "rol_en_propuesta": forms.TextInput(
-                attrs={"placeholder": PLACEHOLDERS["rol_en_propuesta"]}
-            ),
-            "problema_oportunidad": forms.Textarea(
-                attrs={"placeholder": PLACEHOLDERS["problema_oportunidad"], "rows": 7}
-            ),
-            "solucion_innovadora": forms.Textarea(
-                attrs={"placeholder": PLACEHOLDERS["solucion_innovadora"], "rows": 7}
-            ),
-            "trl_id": forms.Select(attrs={"placeholder": PLACEHOLDERS["trl_id"]}),
-            "estado_avance": forms.Textarea(
-                attrs={"placeholder": PLACEHOLDERS["estado_avance"], "rows": 7}
-            ),
-            "innovacion_proceso": forms.Textarea(
-                attrs={"placeholder": PLACEHOLDERS["innovacion_proceso"], "rows": 7}
-            ),
-            "plan_trabajo": forms.Textarea(
-                attrs={"placeholder": PLACEHOLDERS["plan_trabajo"], "rows": 7}
-            ),
-            "docente_id": forms.Select(
-                attrs={"placeholder": PLACEHOLDERS["docente_id"]}
-            ),
-            "empresa_id": forms.Select(
-                attrs={"placeholder": PLACEHOLDERS["empresa_id"]}
-            ),
-        }
-        labels = {
-            "problema": "Problema Presentado",
-            "docente_id": "Docente Asociado",
-            "empresa_id": "Empresa u organization Asociada",
-            "trl_id": "Nivel de madurez tecnológica",
-            "problema_oportunidad": "Problema u oportunidad",
-            "innovacion_proceso": "Potencial de Comercialización y/o Implementación",
-        }
-
-
-##############################################
-##### FORMULARIO PROYECTO FABRICA ANITA ######
+##### FORMULARIO PROYECTO FABRICA ######
 ##############################################
 
 
 class ProyectoFabricaCreateForm(forms.ModelForm):
+
+    codigo_sir = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": PLACEHOLDERS["codigo_sir"],
+                "class": CLASSES["textinput"],
+            }
+        ),
+    )
+
     class Meta:
         model = FormularioProyectoFabrica
         fields = (
@@ -98,7 +35,7 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
             "nombre_propuesta",
             "sede_id",
             "fecha_inicio",
-            "empresa_id",
+            "empresa",
             "problema",
             "objetivo",
             "metodologia",
@@ -109,12 +46,6 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
             "fondos",
         )
         widgets = {
-            "codigo_sir": forms.TextInput(
-                attrs={
-                    "placeholder": PLACEHOLDERS["codigo_sir"],
-                    "class": CLASSES["textinput"],
-                }
-            ),
             "nombre_propuesta": forms.TextInput(
                 attrs={
                     "placeholder": PLACEHOLDERS["nombre_propuesta"],
@@ -127,21 +58,21 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
             "problema": forms.Textarea(
                 attrs={
                     "placeholder": PLACEHOLDERS["problema"],
-                    "rows": 7,
+                    "rows": 4,
                     "class": CLASSES["textarea"],
                 }
             ),
             "objetivo": forms.Textarea(
                 attrs={
                     "placeholder": PLACEHOLDERS["objetivo"],
-                    "rows": 7,
+                    "rows": 5,
                     "class": CLASSES["textarea"],
                 }
             ),
             "metodologia": forms.Textarea(
                 attrs={
                     "placeholder": PLACEHOLDERS["metodologia"],
-                    "rows": 7,
+                    "rows": 5,
                     "class": CLASSES["textarea"],
                 }
             ),
@@ -151,10 +82,10 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
                     "class": CLASSES["select"],
                 }
             ),
-            "empresa_id": forms.Select(
+            "empresa": forms.TextInput(
                 attrs={
-                    "placeholder": PLACEHOLDERS["empresa_id"],
-                    "class": CLASSES["select"],
+                    "placeholder": PLACEHOLDERS["empresa"],
+                    "class": CLASSES["textinput"],
                 }
             ),
             "sede_id": forms.Select(
@@ -171,10 +102,10 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
             "objetivo": "Objetivo del Proyecto",
             "metodologia": "Metodología",
             "docente_id": "Docente líder",
-            "bidireccionalidad": "Bidireccionalidad",
-            "contribucion": "Contribución",
+            "bidireccionalidad": "Bidireccionalidad (Datos Docentes y Estudiantes)",
+            "contribucion": "Contribución (Datos Empresa y/o Beneficiario)",
             "sede_id": "Sede",
-            "empresa_id": "Empresa u organización asociada",
+            "empresa": "Empresa u organización asociada",
             "carta_gantt": "Carta Gantt",
             "fondos": "Postula a fondos concursables",
         }
@@ -206,6 +137,26 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
                         "El tamaño del archivo no puede ser mayor a 5 megabytes.",
                     )
 
+        return cleaned_data
+
+    def clean_problema(self):
+        problema = self.cleaned_data.get("problema")
+        if len(problema) < 100:
+            raise forms.ValidationError("El texto debe tener al menos 100 caracteres.")
+        return problema
+
+    def clean_objetivo(self):
+        objetivo = self.cleaned_data.get("objetivo")
+        if len(objetivo) < 100:
+            raise forms.ValidationError("El texto debe tener al menos 100 caracteres.")
+        return objetivo
+
+    def clean_metodologia(self):
+        metodologia = self.cleaned_data.get("metodologia")
+        if len(metodologia) < 100:
+            raise forms.ValidationError("El texto debe tener al menos 100 caracteres.")
+        return metodologia
+
     def clean_fecha_inicio(self):
         fecha_inicio = self.cleaned_data.get("fecha_inicio")
 
@@ -215,6 +166,14 @@ class ProyectoFabricaCreateForm(forms.ModelForm):
             )
 
         return fecha_inicio
+
+    def clean_empresa(self):
+        empresa = self.cleaned_data.get("empresa")
+
+        if isinstance(empresa, str):
+            empresa = unidecode(empresa.upper().strip())
+
+        return empresa
 
 
 #### FORMULARIO PROYECTO FABRICA FONDOS ####
@@ -257,50 +216,37 @@ class ProyectoFabricaFondosCreateForm(forms.ModelForm):
             "trl_id": "Nivel de madurez tecnológica",
         }
 
+    def clean_problema_oportunidad(self):
+        problema_oportunidad = self.cleaned_data.get("problema_oportunidad")
+        if problema_oportunidad and len(problema_oportunidad) < 5000:
+            raise forms.ValidationError(
+                'El campo "Problema u oportunidad" debe tener al menos 5000 caracteres.'
+            )
+        return problema_oportunidad
 
-##############################################
-##### FORMULARIO PROYECTO FABLAB #############
-##############################################
+    def clean_solucion_innovadora(self):
+        solucion_innovadora = self.cleaned_data.get("solucion_innovadora")
+        if solucion_innovadora and len(solucion_innovadora) < 5000:
+            raise forms.ValidationError(
+                'El campo "Solución innovadora" debe tener al menos 5000 caracteres.'
+            )
+        return solucion_innovadora
 
+    def clean_potencial_comercializacion(self):
+        potencial_comercializacion = self.cleaned_data.get("potencial_comercializacion")
+        if potencial_comercializacion and len(potencial_comercializacion) < 5000:
+            raise forms.ValidationError(
+                'El campo "Potencial de comercialización" debe tener al menos 5000 caracteres.'
+            )
+        return potencial_comercializacion
 
-class ProyectoFabLabCreateForm(forms.ModelForm):
-    class Meta:
-        model = FormularioProyectoFabLab
-        fields = (
-            "nombre_propuesta",
-            "problema",
-            "solucion",
-            "alumnos",
-            "docentes",
-            "trl_id",
-        )
-        widgets = {
-            "nombre_propuesta": forms.TextInput(
-                attrs={"placeholder": PLACEHOLDERS["nombre_propuesta"]}
-            ),
-            "problema": forms.Textarea(
-                attrs={"placeholder": PLACEHOLDERS["problema"], "rows": 7}
-            ),
-            "solucion": forms.Textarea(
-                attrs={"placeholder": PLACEHOLDERS["solucion_innovadora"], "rows": 7}
-            ),
-            "trl_id": forms.Select(attrs={"placeholder": PLACEHOLDERS["trl_id"]}),
-            "docentes": forms.SelectMultiple(
-                attrs={"placeholder": PLACEHOLDERS["docente_id"]}
-            ),
-        }
-        labels = {
-            "problema": "Problema Presentado",
-            "docentes": "Docentes Asociados",
-            "trl_id": "Nivel de madurez tecnológica",
-        }
-
-    def clean_docentes(self):
-        docentes = self.cleaned_data.get("docentes")
-        if docentes is None or len(docentes) == 0:
-            raise forms.ValidationError("Debe seleccionar al menos un docente.")
-
-        return docentes
+    def clean_plan_trabajo(self):
+        plan_trabajo = self.cleaned_data.get("plan_trabajo")
+        if plan_trabajo and len(plan_trabajo) < 2000:
+            raise forms.ValidationError(
+                'El campo "Plan de trabajo" debe tener al menos 2000 caracteres.'
+            )
+        return plan_trabajo
 
 
 #############################################
@@ -355,18 +301,6 @@ class MultipleFileField(forms.FileField):
 #################################################
 #### FORMULARIOS PARA LAS IMÁGENES ##############
 #################################################
-
-########## FORMULARIO DE IMÁGENES FABLAB ########
-
-
-class ImageForm(forms.ModelForm):
-    image = MultipleFileField(label="Incluir imágenes (4 imágenes)", required=False)
-
-    class Meta:
-        model = FabLabImage
-        fields = [
-            "image",
-        ]
 
 
 ########## FORMULARIO DE IMÁGENES FABRICA ########

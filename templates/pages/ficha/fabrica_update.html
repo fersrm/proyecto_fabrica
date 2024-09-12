@@ -71,14 +71,14 @@
                             {% endif %}
                         </div>
 
-                        <div id="div_empresa_id" class="mb-3">
-                            <label for="{{ proyecto_form.empresa_id.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
-                                {{ proyecto_form.empresa_id.label }}
+                        <div id="div_empresa" class="mb-3">
+                            <label for="{{ proyecto_form.empresa.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ proyecto_form.empresa.label }}
                             </label>
-                            {{ proyecto_form.empresa_id }}
+                            {{ proyecto_form.empresa }}
 
-                            {% if proyecto_form.empresa_id.errors %}
-                                {% for error in proyecto_form.empresa_id.errors %}
+                            {% if proyecto_form.empresa.errors %}
+                                {% for error in proyecto_form.empresa.errors %}
                                     <strong>{{ error }}</strong>
                                 {% endfor %}
                             {% endif %}

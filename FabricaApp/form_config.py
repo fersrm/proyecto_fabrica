@@ -1,6 +1,6 @@
 PLACEHOLDERS = {
     # PROYECTO FABRICA ANITA
-    "codigo_sir": "Código SIR",
+    "codigo_sir": "Código SIR (opcional)",
     "nombre_propuesta": "Nombre de la propuesta",
     "fecha_inicio": "Fecha de inicio",
     "problema": """-Describe brevemente el contexto o la situación problemática que motiva el proyecto.
@@ -16,7 +16,7 @@ PLACEHOLDERS = {
 -Ejemplo: Este estudio empleará un enfoque experimental que combina la instalación de sensores en el harnero, registrando datos en tiempo real. Se utilizarán sensores de vibración, temperatura, presión y nivel de carga, para recopilar datos sobre el rendimiento y las condiciones operativas del harnero.
 """,
     "docente_id": "Docente asociado",
-    "empresa_id": "Empresa asociada",
+    "empresa": "Empresa asociada",
     "sede": "Sede",
     # PROYECTO FABRICA FONDOS
     "problema_oportunidad": "Describir el problema que se busca resolver o la oportunidad que se busca abordar acotándolo a los alcances de la solución innovadora propuesta. Fundamentar quiénes se ven directamente afectados por este y entregar cifras, datos e información respaldada que permita cuantificar la magnitud del problema u oportunidad planteada (Papers, publicaciones, patentes, etc.). (Mínimo 5000/ Máximo 8000 caracteres)",

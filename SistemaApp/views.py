@@ -1,12 +1,100 @@
-from django.views.generic import ListView
+from django.views.generic import ListView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from core.mixins import PermitsPositionMixin
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
 from UsuarioApp.models import Profile
-from FabricaApp.models import FormularioProyectoInterno, FormularioProyectoFabrica
+from FabricaApp.models import FormularioProyectoFabrica
+from django.http import HttpResponse
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.styles import NamedStyle, Font, PatternFill
+import pandas as pd
 
 # Create your views here.
+
+
+class DescargarProyectosFabricaView(LoginRequiredMixin, PermitsPositionMixin, View):
+    def get(self, request, *args, **kwargs):
+
+        proyectos = FormularioProyectoFabrica.objects.all().values(
+            "codigo_sir",
+            "nombre_propuesta",
+            "fecha_inicio",
+            "problema",
+            "objetivo",
+            "metodologia",
+            "docente_id__nombre",
+            "sede_id__sede_nombre",
+            "empresa",
+        )
+
+        titulos = [
+            "Id de proyecto",
+            "Título del Proyecto",
+            "Fecha inicio",
+            "Contexto del Problema",
+            "Objetivo del Proyecto",
+            "Metodología",
+            "Docente líder",
+            "Sede",
+            "Empresa asociada",
+        ]
+
+        df = pd.DataFrame(list(proyectos))
+        df.columns = titulos
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Proyectos Fabrica"
+
+        date_style = NamedStyle(name="date_style", number_format="YYYY-MM-DD")
+        wb.add_named_style(date_style)
+
+        for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), 1):
+            ws.append(row)
+            for c_idx, cell_value in enumerate(row, 1):
+                cell = ws.cell(row=r_idx, column=c_idx)
+                if titulos[c_idx - 1] == "Fecha inicio":
+                    cell.style = date_style
+
+        # Create a table
+        tab = Table(displayName="ProyectosTable", ref=ws.dimensions)
+
+        style = TableStyleInfo(
+            name="TableStyleMedium9",
+            showFirstColumn=False,
+            showLastColumn=False,
+            showRowStripes=True,
+            showColumnStripes=False,
+        )
+        tab.tableStyleInfo = style
+        ws.add_table(tab)
+
+        # Style the header row
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(
+            start_color="4F81BD", end_color="4F81BD", fill_type="solid"
+        )
+
+        for cell in ws[1]:
+            cell.font = header_font
+            cell.fill = header_fill
+
+        # Generate the response
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response["Content-Disposition"] = (
+            'attachment; filename="proyectos_fabrica.xlsx"'
+        )
+
+        # Save workbook to response
+        wb.save(response)
+
+        return response
 
 
 class HomeView(LoginRequiredMixin, ListView):
@@ -28,24 +116,6 @@ class HomeView(LoginRequiredMixin, ListView):
             last_activity__gte=recent_activity_cutoff
         ).values_list("user_FK_id", flat=True)
         context["active_users"] = active_users
-
-        # Agrega el recuento
-        proyecto_count = FormularioProyectoInterno.objects.count()
-        latest_proyecto = FormularioProyectoInterno.objects.order_by(
-            "-registration_date"
-        ).first()
-        latest_registration_date = (
-            latest_proyecto.registration_date if latest_proyecto else None
-        )
-        latest_registration_user = (
-            latest_proyecto.user_id.username
-            if latest_proyecto and latest_proyecto.user_id
-            else None
-        )
-
-        context["proyecto_count"] = proyecto_count
-        context["latest_registration_date"] = latest_registration_date
-        context["latest_registration_user"] = latest_registration_user
 
         # Agrega el recuento
         proyecto_count_ficha = FormularioProyectoFabrica.objects.count()

@@ -32,7 +32,7 @@
 
                     <tr>
                         <td class=" py-4 pl-0 pr-8 text-sm leading-6 text-gray-400 md:table-cell lg:pr-10">
-                            {{ item.codigo_sir }}
+                          {{ item.codigo_sir|default:"sin código" }}
                         </td>
                         <td class=" py-4 pl-0 pr-8 text-sm leading-6 text-gray-400 md:table-cell lg:pr-10">
                             {{ item.nombre_propuesta }}
@@ -52,11 +52,11 @@
                                         {% include "components/svg/svg_editar.html" %}
                                 </a>
 
-                                {% if user.profile.position_FK.id and user.profile.position_FK.id != 3  %}
+                                {% if user.profile.position_FK.permission_code != "RESTRICTED" %}
 
-                                <a href="{% url "FabriFichaDelete" item.id %}" onclick="return confirm('¿Estás seguro de que deseas borrar el proyecto?');" class="flex items-center w-12 justify-center rounded-md bg-red-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 ">
-                                    {% include "components/svg/svg_eliminar.html" %}
-                                </a>
+                                    <a href="{% url "FabriFichaDelete" item.id %}" onclick="return confirm('¿Estás seguro de que deseas borrar el proyecto?');" class="flex items-center w-12 justify-center rounded-md bg-red-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 ">
+                                        {% include "components/svg/svg_eliminar.html" %}
+                                    </a>
 
                                 {% endif %}
                             </div>

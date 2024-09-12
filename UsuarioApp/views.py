@@ -38,7 +38,7 @@ class UserListView(LoginRequiredMixin, ListView):
             verification_users.append((user, verification))
 
         context["verification_users"] = verification_users
-        context["placeholder"] = "Buscar por usuario, nombre o apellido "
+        context["placeholder"] = "Buscar por usuario, nombre o apellido"
         return context
 
 

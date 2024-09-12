@@ -8,6 +8,8 @@ class PermitsPositionMixin:
     Redirecciona a 'Inicio' si el usuario no está permitido.
     """
 
+    # si se agregan mas usar  in ["admin", "manager", "supervisor", "power_user", "auditor"]
+
     redirect_url = reverse_lazy("Home")
 
     def dispatch(self, request, *args, **kwargs):
@@ -15,7 +17,7 @@ class PermitsPositionMixin:
         if user.is_superuser or (
             hasattr(user, "profile")
             and getattr(user.profile, "position_FK", None)
-            and user.profile.position_FK.id != 3
+            and user.profile.position_FK.permission_code != "RESTRICTED"
         ):
             return super().dispatch(request, *args, **kwargs)
         return redirect(self.redirect_url)

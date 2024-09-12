@@ -70,20 +70,20 @@
                             {% endif %}
                         </div>
 
-                        <div id="div_empresa_id" class="mb-3">
-                            <label for="{{ parte1_form.empresa_id.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
-                                {{ parte1_form.empresa_id.label }}
+                        <div id="div_empresa" class="mb-3">
+                            <label for="{{ parte1_form.empresa.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
+                                {{ parte1_form.empresa.label }}
                             </label>
-                            {{ parte1_form.empresa_id }}
+                            {{ parte1_form.empresa }}
 
-                            {% if parte1_form.empresa_id.errors %}
-                                {% for error in parte1_form.empresa_id.errors %}
+                            {% if parte1_form.empresa.errors %}
+                                {% for error in parte1_form.empresa.errors %}
                                     <strong>{{ error }}</strong>
                                 {% endfor %}
                             {% endif %}
                         </div>
 
-                        <h4 class="pb-2 block text-gray-900 text-base font-bold">DESCRIPCIÓN DEL PROBLEMA</h4>
+                        <h4 class="pb-2 block text-gray-900 text-base font-bold">DESCRIPCIÓN DEL PROYECTO</h4>
                         <hr class="pb-2" >
 
                         <div id="div_problema" class="mb-3">
@@ -193,7 +193,7 @@
                             {% endif %}
                         </div>
 
-                        <h4 class="pb-2 block text-gray-900 text-base font-bold">IMÁGINES</h4>
+                        <h4 class="pb-2 block text-gray-900 text-base font-bold">IMÁGENES</h4>
                         <hr class="pb-2">
 
                         <p class="block text-gray-700 text-sm font-bold mb-2">{{ image_form.image.label }}</p> 
