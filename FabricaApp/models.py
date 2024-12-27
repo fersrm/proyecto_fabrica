@@ -11,7 +11,7 @@ def upload_to_documentos(instance, filename):
     if instance.codigo_sir:
         codigo_sir = instance.codigo_sir
     else:
-        codigo_sir = f"sin_codigo"
+        codigo_sir = "sin_codigo"
     return f"fabrica/{codigo_sir}/documentos/{filename}"
 
 
@@ -124,7 +124,7 @@ class Sede(models.Model):
 
 
 class FormularioProyectoFabrica(models.Model):
-    codigo_sir = models.CharField(max_length=25, blank=True, null=True, default="")
+    codigo_sir = models.CharField(max_length=25, blank=True, default="")
     nombre_propuesta = models.CharField(max_length=200, unique=True)
     fecha_inicio = models.DateField()
     registration_date = models.DateTimeField(auto_now_add=True)
